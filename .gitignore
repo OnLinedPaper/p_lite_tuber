@@ -1,0 +1,11 @@
+#local stuff
+Session.vim
+bin
+build
+debugging
+resources/*
+todo.txt
+old
+
+#vim stuff
+*.swp
