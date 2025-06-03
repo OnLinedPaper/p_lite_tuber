@@ -50,6 +50,8 @@ void render::show() {
   
   SDL_RenderPresent(r);
   
+  SDL_SetRenderDrawColor(r, c_r, c_g, c_b, 0xFF);
+  SDL_RenderClear(r);
   //now, wipe the screen
   //SDL_Surface *ws = SDL_GetWindowSurface(w);
   //SDL_FillRect(ws, NULL, SDL_MapRGB(ws->format, c_r, c_g, c_b));

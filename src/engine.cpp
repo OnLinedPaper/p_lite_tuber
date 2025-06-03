@@ -10,10 +10,10 @@ void engine::play() {
   SDL_Event e;
   bool quit = false;
 
-  //---- DEBUGGING SECTION ----------------------------------------------------
+  //   -DEBUGGING SECTION  -   -   -   -   -   -   -   -   -   -   -   -   -   
     image i("./resources/control/wisp_yellow.txt", &r);
   
-  //---------------------------------------------------------------------------
+  //   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   
 
   //main loop - everything that happens, happens in here
   while(!quit) {
@@ -24,7 +24,17 @@ void engine::play() {
       if(e.type == SDL_QUIT) { quit = true; }
     }
 
-    i.draw(0, 0);
+    // -   DEBUGGING SECTION   -   -   -   -   -   -   -   -   -   -   -   -
+
+    static int d_i = 0;
+    d_i++;
+    int d_x, d_y;
+    d_x = (((d_i)*3) % (r.get_w() + i.get_w())) - i.get_w();
+    d_y = (((d_i)*2) % (r.get_h() + i.get_h())) - i.get_h();
+    i.draw(d_x, d_y);
+
+    // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+
     r.show();
 
     //stick something in the term so we have a visual indicator that we're

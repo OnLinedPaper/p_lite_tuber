@@ -44,6 +44,8 @@ public:
   //parameter is x,y coordinates of the image's top left corner.
   void draw(int, int) const;
 
+  int get_w() const { return width; }
+  int get_h() const { return height; }
 private:
 
   std::string control_file_path;
