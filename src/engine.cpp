@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <bitset>
 #include <cmath>
+#include "src/audio/audio.h"
 
 
 //TODO: move this whole section to its own class
@@ -34,23 +35,51 @@ void audio_stream_callback(void *userdata, uint8_t *stream, int len) {
   //converting it lets me see it as needed!
   //TODO: check how to measure volume. raw? square root? log? it looks like
   //square root's going to be the best solution here, but i need to test more.
+  //need to research "root mean square", which is apparently the volume bouncy
+  //thingy i'm used to seeing. that averages out the spikes over a period with
+  //sqrt( 1/n * (x1^2 + x2^2 + ... + xn^2 ) )
   const float *fs = (const float *)stream;
   const float *fe = fs + len / 4;
+
+  //root mean square stuff goes here. going to try to keep 300ms of data in 
+  //the array and rms it, which will grow and shrink as sample rate changes.
+  //sampling at 44100/50 per second, converting this to 300ms gives 264 samples
+  const static int rms_max = 264;
+  static int rms_pos = 0;
+  static float rms_arr[rms_max] = {};
+  float rms = 0;
+
+
   for( ; fs < fe; ++fs) {
+
+    //calculate max val
     static int16_t mx = 0;
     int16_t i = *fs * 32767;
-    if(i > mx) { mx = i; }
+    //if(i > mx) { mx = i; }
+
+    //rms logic
+    rms_arr[rms_pos] = i*i;
+    rms_pos++;
+    rms_pos = rms_pos % rms_max;
+
+    for(float rms_f : rms_arr) {
+      rms += rms_f;
+    }
+    rms = std::sqrt((1.0/rms_max) * rms);
+    if(rms > mx) { mx = rms; }
+
     std::cout << "STREAM " << std::setw(7) << std::abs(i);
     std::cout << std::setw(8) << std::fixed << std::setprecision(2) << std::sqrt(std::abs(i));
+    std::cout << std::setw(8) << std::fixed << std::setprecision(2) << rms;
     std::cout << std::setw(6) << std::fixed << std::setprecision(2) << std::log(std::abs(i));
     //now do a little "volume meter"
     std::cout << "  [";
     std::string s = "";
-    for(int j=0; j<std::min(std::sqrt(std::abs(i)), 48.0); j++) {
+    for(int j=0; j<std::min((rms/(32767/(40*4))), float(40.0)); j++) {
       s += "o";
     }
-    std::cout << std::left << std::setw(48) << s << std::right;
-    std::cout << "]    " << /*mx <<*/ "\r";
+    std::cout << std::left << std::setw(40) << s << std::right;
+    std::cout << "]    " << mx << "\r";
   }
 
   //dump buffer
@@ -318,13 +347,38 @@ void engine::play() {
   //using the actual spec, calculate the bytes per sample and bytes needed
   //just kidding, actually. we're not storing the sound, so let's just dump it
   //immediately. 
-  std::cout << "\nMANIP=     RAW    SQRT   LOG  VISUAL (SQRT)" << std::endl;
+  std::cout << "\nMANIP=     RAW    SQRT     RMS   LOG  VISUAL (RMS)" << std::endl;
   SDL_PauseAudioDevice(audio_dev_stream_id, SDL_FALSE);
   std::cin.get();
   SDL_PauseAudioDevice(audio_dev_stream_id, SDL_TRUE);
   SDL_CloseAudioDevice(audio_dev_stream_id);
 
-  if(true) {
+  std::cout << "\n\n\n\n";
+
+  //ok, try to init an audio now
+  std::vector<std::pair<int, std::string>> devices;
+  audio::get_devices(devices);
+
+  //TODO: eventually, show users their devices here. for now, just print them
+  //and then pick the first one.
+  for(auto d : devices) {
+    std::cout << d.first << " " << d.second;
+    std::cout << std::endl;
+  }
+
+  audio a(
+      0             //device id
+    , 44100/50      //sampling frequency (per second)
+    , 4096/512      //samples before a callback
+    , 1             //1 input channel
+    , 300           //300ms RMS audio interval
+    , audio::RMS    //use RMS audio processing
+  );
+
+  if(! a.is_init() ) { std::cout << "S-H-I-T!" << SDL_GetError() << std::endl; return; }
+
+
+  if(false) {
     std::cout << "\ndebugging finished - returning" << std::endl;
     return;
   }
@@ -348,6 +402,8 @@ void engine::play() {
     d_x = (((d_i)*3) % (r.get_w() + i.get_w())) - i.get_w();
     d_y = (((d_i)*2) % (r.get_h() + i.get_h())) - i.get_h();
     i.draw(d_x, d_y);
+
+    std::cout << "                                         " << a.get_level() << "\r";
 
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
