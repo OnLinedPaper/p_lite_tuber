@@ -15,6 +15,7 @@ public:
 
 private:
   bool init();
+  bool is_init;
   void print_debug_swirly() const;
 
   //timekeeping things - last_tick tracks the last logic tick and tick_wait()
