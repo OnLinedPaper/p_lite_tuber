@@ -10,10 +10,6 @@ render::render() :
   , c_g(0xAA)
   , c_b(0xFF) 
 {
-  if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-    //throw an error and die
-  }
-
   init_w();
   init_r();
 
