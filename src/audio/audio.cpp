@@ -103,17 +103,23 @@ void audio::stream_callback(uint8_t *stream, int len) {
   const float *fs = (const float *)stream;
   const float *fe = fs + len / 4;
 
+  //precompute these values
+  static const float PCM_MAX = 32767.0;
+  static const float PCM_MAX_SQRT = std::sqrt(PCM_MAX);
+  static const float PCM_MAX_LOG = std::log(PCM_MAX);
+
   for( ; fs < fe; ++fs) {
-    int16_t pcm = std::abs(*fs * 32767); //pcm now holds raw PCM data!
+    int16_t pcm = std::abs(*fs * PCM_MAX); //pcm now holds raw PCM data!
 
     //second, use the chosen processing method to calculate the audio level
     switch(proc_method) {
       case RAW:
-        level = pcm / 32767.0;
+        level = pcm / PCM_MAX;
         break;
       case SQRT:
-        level = std::sqrt(pcm) / std::sqrt(32767.0);
+        level = std::sqrt(pcm) / PCM_MAX_SQRT;
         break;
+      case RMSLOG:
       case RMS:
         //dont run this unless we're using rms
         static int rms_pos = 0;
@@ -126,10 +132,18 @@ void audio::stream_callback(uint8_t *stream, int len) {
         for(const float &f : rms_arr) {
           level += f;
         }
-        level = std::sqrt((1.0/float(rms_max)) * level) / 32767.0;
+        level = std::sqrt((1.0/float(rms_max)) * level);
+
+        //last-second check to see what form we want
+        if(proc_method == RMS) {
+            level /= 32767.0;
+        }
+        else if(proc_method == RMSLOG) {
+          level = std::log(level) / PCM_MAX_LOG;
+        }
         break;
       case LOG:
-        level = std::log(pcm) / std::log(32767.0);
+        level = std::log(pcm) / PCM_MAX_LOG;
         break;
       default:
         //make level creep upwards slowly and then reset, as a visual

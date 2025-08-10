@@ -14,6 +14,10 @@
 //transitioning between "states" will be accomplished via separate logic.
 //this is just for holding and displaying whatever image is currently meant to
 //be on the screen - let's keep it simple and sweet.
+//
+//to wit, r.e. above: going to use a control file for each image and not going
+//to worry about file browsers or PNG header parsing or anything along those
+//lines for now (and may not worry about them at all)
 class image {
 public:
   //images are going to have their data stored in a simple txt file. the
@@ -41,8 +45,11 @@ public:
   //render class gets passed in, allowing the image to draw itself. done this
   //way to avoid qdbp's renderer singleton.
   //this MIGHT also let me finally make draw a const function.
-  //parameter is x,y coordinates of the image's top left corner.
-  void draw(int, int) const;
+  //mandatory:
+  //parameters 1,2 are x,y coordinates of the image's top left corner.
+  //optional:
+  //parameter 3 is scale
+  void draw(int x, int y, float scale=1.0) const;  
 
   int get_w() const { return width; }
   int get_h() const { return height; }

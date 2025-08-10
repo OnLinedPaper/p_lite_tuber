@@ -16,14 +16,12 @@ class audio {
 public:
   //various audio processing methods:
   //- RAW sends back raw audio data
-  //  - values: 0-32767
   //- SQRT sends back sqrt of raw audio data
-  //  - values: 0-182
   //- RMS sends back root mean square of raw audio data over an interval
-  //  - values: 0-32767, but in practice rarely goes above... 2000 or so?
   //- LOG sends back log of raw audio data
-  //  - values: 0-5
-  enum audio_proc { RAW, SQRT, RMS, LOG };
+  //- RMSLOG combines root mean square for signal smoothing and log to level
+  //  off extreme volume levels
+  enum audio_proc { RAW, SQRT, RMS, LOG, RMSLOG };
 
   //TODO: delete this later, probably
   audio();

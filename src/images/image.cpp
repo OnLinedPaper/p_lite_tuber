@@ -113,7 +113,7 @@ image::~image() {
   }
 }
 
-void image::draw(int x, int y) const { 
+void image::draw(int x, int y, float scale) const { 
   //draw the actual image. remember: x/y coordinates refer to the top left 
   //corner of the image.
   //TODO: same shit as qdbp's r_c_o_all, i have no doubt this'll balloon in size
@@ -122,18 +122,24 @@ void image::draw(int x, int y) const {
   
   //check to see if it's on the screen; don't draw it if it's not.
   //TODO: adjust check for rotating images later.
+
+  //TODO: determine how to use scale, if at all - likely will apply only to
+  //width and height, not to x and y (though this will make coding dollpart
+  //coordinates tough... hm. maybe make the doll use scale? worry about it
+  //later, scale for now. likely the doll will handle the coordinates and
+  //the image can deal with the scale.
   if(
       x > r->get_w() ||
-      x + width < 0 ||
+      x + width * scale < 0 ||
       y > r->get_h() ||
-      y + height < 0
+      y + height * scale < 0
   ) { return; }
 
   SDL_Rect dest_r;
   dest_r.x = x;
   dest_r.y = y;
-  dest_r.w = width;
-  dest_r.h = height;
+  dest_r.w = width * scale;
+  dest_r.h = height * scale;
 
   //TODO: pivot here, later.
 

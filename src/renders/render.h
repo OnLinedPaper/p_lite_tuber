@@ -22,6 +22,8 @@ public:
   render &operator=(const render &) = delete;
   ~render();
 
+  void init();
+
   SDL_Renderer *get_r() { return r; };
 
   int get_w() const { return w_width; }
