@@ -1,6 +1,10 @@
 #ifndef DOLL_H_
 #define DOLL_H_
 
+#include <string>
+#include "src/images/image.h"
+#include "src/renders/render.h"
+
 //dolls are going to be FK-esque rigs. i'm going to try to keep them simple:
 //each one has a single image (which may be animated) and two "inputs". 
 //
@@ -29,22 +33,85 @@
 //close based on audio levels, they need to attach two dollparts to the mouth
 //area and toggle their transparency levels based on volume thresholds. this
 //might make rigging trickier, but it'll keep code simple.
-
-class dollpart {
+/*
+class dollpart_old {
 public:
 
 private:
 };
-
+*/
 //i'm still trying to decide what to do here. there's a chance i'll just make
 //"doll" a handler class that's full of dollparts, which is used to update
 //them, pass data along to them, and make sure they draw in the correct order.
 //truth be told i feel like there's probably a better way to do this, but i'll
 //consider it for the time being...
-class doll { 
+/*
+class doll_old { 
 public:
 
 private:
-}
+};
+*/
+
+
+/*
+dollparts are images that (for the time being) are just plain ol' static
+images that can be moved around. 
+- the "pin" is the top-left corner of the image. 
+- the "parent" is the dollpart used as reference for the pin. (a null parent
+  indicates this dollpart is pinned directly to the window.)
+  when calculating where to render a dollpart image, first grab the pin of the
+  parent, and then add the pin of the dollpart.
+- the "scale" is the scale at which the dollpart is drawn. dollparts pinned to
+  other dollparts will inherit that part's scale when pinned.
+*/
+class dollpart {
+public:
+
+  //string to load image with
+  dollpart(std::string, render *);
+  ~dollpart();
+
+  int get_pin_x() const { return pin_x; }
+  int get_pin_y() const { return pin_y; }
+  int get_draw_x() const { return draw_x; }
+  int get_draw_y() const { return draw_y; }
+  float get_scale() const { return scale; }
+  void set_scale(float s) { scale = s; }
+  void set_sinefloat(float dx, float sx, float dy, float sy) {
+    sf_deflect_x = dx; sf_speed_x = sx; sf_deflect_y = dy; sf_speed_y = sy;
+  }
+
+  //pins this dollpart to the coordinates of another dollpart
+  void pin_to(int x, int y, const dollpart *p);
+
+  //render to screen. takes into account scale and parent coordiantes.
+  void draw();
+
+private:
+  int pin_x;    //x coordinate this dollpart is pinned to 
+  int pin_y;    //y coordinate this dollpart is pinned to
+  int draw_x;   //x coordinate this dollpart is drawn to
+  int draw_y;   //y coordinate this dollpart is drawn to
+  float scale;  //scale at which dollpart is drawn and pins are adjusted
+  image i;      //image to draw
+
+  //"sinefloat" (sf) makes the dollpart wobble back and forth as a sort of idle
+  //animation. it uses a standard sine function tethered to a static counter
+  //to run itself.
+  //"deflection" is how far the image moves from peak to peak; "speed" is how
+  //quickly one peak reaches another. formula:
+  //
+  //  position = deflection * sin(clock * speed)
+  //
+  float sf_deflect_x;
+  float sf_speed_x;
+  float sf_deflect_y;
+  float sf_speed_y;
+
+  //TODO: decide whether or not this is a horrible idea. child dollparts
+  //holding null references could really screw things up...
+  const dollpart *parent;
+};
 
 #endif

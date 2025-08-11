@@ -7,6 +7,7 @@
 #include <bitset>
 #include <cmath>
 #include "src/audio/audio.h"
+#include "src/doll/doll.h"
 
 //-----------------------------------------------
 
@@ -61,7 +62,20 @@ void engine::play() {
     return; 
   }
 
+  //let's see if we can get dolls working
+  dollpart dp_torso("./resources/control/sona_tuber_draw_head.txt", &r);
+  dp_torso.pin_to(500, 190, NULL);
+  dp_torso.set_scale(720.0/2800.0);
+  dp_torso.set_sinefloat(8.0, 0.013, 8.0, 0.008);
 
+  dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
+  dp_penhand.pin_to(195, 1205, &dp_torso);
+  dp_penhand.set_sinefloat(32.5, 0.042, 53.8, 0.028);
+
+  dollpart dp_bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
+  dp_bookhand.pin_to(-195, 1245, &dp_torso);
+  dp_bookhand.set_sinefloat(3.25, 0.042, 5.38, 0.028);
+   
   if(false) {
     std::cout << "\ndebugging finished - returning" << std::endl;
     return;
@@ -96,44 +110,9 @@ void engine::play() {
 
     //std::cout << "            " << a_rms.get_level() << "\r" << std::flush;
 
-
-    //ok, now let's see how the tuber looks
-    //really... really fucking big. okay. hm. need to scale this.
-    //better! now to scale the other parts too
-
-    //now let's see about making the parts move in sync, and have the
-    //limbs move relative to the torso rather than independent of it
-    //TODO: something that lets me position/reload the parts at runtime
-    //rather than recompiling every time i want to make a change
-    //TODO: convert all these absolute limb positions into relative
-    //positions, i.e. "50% down the body" and the like so they scale properly
-    float scale = 720.0/2800.0;
-    int x_base_torso = 500;
-    int y_base_torso = 190;
-
-    //how about some drift? we already have sin/cos/tan from cmath, might as
-    //well make some use of them
-
-    static float drift_factor = 0;
-    drift_factor++;
-
-    //remember that sin/cos measure in radians
-    int x_torso = x_base_torso + 8.0 * std::sin(drift_factor/45);
-    int y_torso = y_base_torso + 8.0 * std::sin(drift_factor/66);
-
-    //how about we make the pen and book move a bit? let's say pen moves a lot
-    //and book moves a tiny bit relative to it
-    //pen vs book: 
-    //tlc: -50, -55
-    //brc: +50, +55
-
-    int x_deflection_penhand = 50.0 * std::sin(drift_factor/9) / 6;
-    int y_deflection_penhand = 55.0 * std::sin(drift_factor/11) / 4;
-
-    torso.draw(x_torso, y_torso, scale);
-    //penhand.draw(x_torso + 50, y_torso + 310, scale);
-    penhand.draw(x_torso + 50 + x_deflection_penhand, y_torso + 310 + y_deflection_penhand, scale);
-    bookhand.draw(x_torso - 50 + (0.1 * x_deflection_penhand), y_torso + 320 + (0.1 * y_deflection_penhand), scale);
+    dp_torso.draw();
+    dp_penhand.draw();
+    dp_bookhand.draw();
 
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
