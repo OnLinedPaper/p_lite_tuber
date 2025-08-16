@@ -2,8 +2,10 @@
 #define DOLL_H_
 
 #include <string>
+#include <list>
 #include "src/images/image.h"
 #include "src/renders/render.h"
+#include "src/actions/action.h"
 
 //dolls are going to be FK-esque rigs. i'm going to try to keep them simple:
 //each one has a single image (which may be animated) and two "inputs". 
@@ -64,6 +66,17 @@ images that can be moved around.
   parent, and then add the pin of the dollpart.
 - the "scale" is the scale at which the dollpart is drawn. dollparts pinned to
   other dollparts will inherit that part's scale when pinned.
+
+  TODO: "actions"? every dollpart's going to get audio input, and can take 
+        actions based on it. each action has an... action... and a threshold.
+        perhaps these separate actions have separate thresholds or something?
+        actions include deflection (movement) and rendering (toggle
+        visibility). 
+        speaking makes the doll bounce upon a rising-edge threshold crossover.
+        blinking is pseudorandom... maybe based on whether audio is mod-able
+        by a certain value...?
+        speaking toggles the closed and open mouth rendering(s) based on both
+        rising- and falling-edge threshold crossovers
 */
 class dollpart {
 public:
@@ -78,15 +91,16 @@ public:
   int get_draw_y() const { return draw_y; }
   float get_scale() const { return scale; }
   void set_scale(float s) { scale = s; }
-  void set_sinefloat(float dx, float sx, float dy, float sy) {
-    sf_deflect_x = dx; sf_speed_x = sx; sf_deflect_y = dy; sf_speed_y = sy;
-  }
+  void add_action(action *a) { actions.push_back(a); }
 
   //pins this dollpart to the coordinates of another dollpart
   void pin_to(int x, int y, const dollpart *p);
 
+  //update the dollpart. coordinates its movements and actions.
+  void update(float input = 0);
+
   //render to screen. takes into account scale and parent coordiantes.
-  void draw();
+  void draw() /*const*/;
 
 private:
   int pin_x;    //x coordinate this dollpart is pinned to 
@@ -96,22 +110,11 @@ private:
   float scale;  //scale at which dollpart is drawn and pins are adjusted
   image i;      //image to draw
 
-  //"sinefloat" (sf) makes the dollpart wobble back and forth as a sort of idle
-  //animation. it uses a standard sine function tethered to a static counter
-  //to run itself.
-  //"deflection" is how far the image moves from peak to peak; "speed" is how
-  //quickly one peak reaches another. formula:
-  //
-  //  position = deflection * sin(clock * speed)
-  //
-  float sf_deflect_x;
-  float sf_speed_x;
-  float sf_deflect_y;
-  float sf_speed_y;
-
   //TODO: decide whether or not this is a horrible idea. child dollparts
   //holding null references could really screw things up...
   const dollpart *parent;
+
+  std::list<action *> actions;
 };
 
 #endif

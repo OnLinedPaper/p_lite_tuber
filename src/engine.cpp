@@ -8,6 +8,7 @@
 #include <cmath>
 #include "src/audio/audio.h"
 #include "src/doll/doll.h"
+#include "src/actions/action.h"
 
 //-----------------------------------------------
 
@@ -66,16 +67,22 @@ void engine::play() {
   dollpart dp_torso("./resources/control/sona_tuber_draw_head.txt", &r);
   dp_torso.pin_to(500, 190, NULL);
   dp_torso.set_scale(720.0/2800.0);
-  dp_torso.set_sinefloat(8.0, 0.013, 8.0, 0.008);
+  //how about an action?
+  dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 30.0, 0.013));
+  dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.008));
 
   dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
   dp_penhand.pin_to(195, 1205, &dp_torso);
-  dp_penhand.set_sinefloat(32.5, 0.042, 53.8, 0.028);
+  dp_penhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 32.5, 0.084));
+  dp_penhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 53.8, 0.056));
+
 
   dollpart dp_bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
   dp_bookhand.pin_to(-195, 1245, &dp_torso);
-  dp_bookhand.set_sinefloat(3.25, 0.042, 5.38, 0.028);
-   
+  dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 3.25, 0.084));
+  dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 5.38, 0.056));
+
+ 
   if(false) {
     std::cout << "\ndebugging finished - returning" << std::endl;
     return;
@@ -109,6 +116,10 @@ void engine::play() {
     i.draw(p_x * 5 / 10, p_y - p_y_rmslog);
 
     //std::cout << "            " << a_rms.get_level() << "\r" << std::flush;
+
+    dp_torso.update();
+    dp_penhand.update();
+    dp_bookhand.update();
 
     dp_torso.draw();
     dp_penhand.draw();

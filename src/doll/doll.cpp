@@ -1,4 +1,5 @@
 #include "src/doll/doll.h"
+  #include <iostream>
 #include <cmath>
 
 dollpart::dollpart(std::string image_path, render *r) :
@@ -6,11 +7,8 @@ dollpart::dollpart(std::string image_path, render *r) :
   , pin_y(0)
   , scale(1.0)
   , i(image_path, r)
-  , sf_deflect_x(0)
-  , sf_speed_x(0)
-  , sf_deflect_y(0)
-  , sf_speed_y(0)
   , parent(NULL)
+  //, actions //inits itself empty
 { }
 
 dollpart::~dollpart() { }
@@ -22,9 +20,30 @@ void dollpart::pin_to(int x, int y, const dollpart *p) {
   if(parent != NULL) {
     scale = parent->get_scale();
   }
+  
+  //don't bother with iterators, just pull the list apart from the front
+  while(!actions.empty()) {
+    delete actions.front();
+    actions.pop_front();
+  }
 }
 
-void dollpart::draw() {
+void dollpart::update(float input) {
+  //calculates the conditions under which to draw the dollpart, and also 
+  //updates the actions as well
+
+  //update the actions
+  //TODO: kill the inactive ones. yes, i could recycle them, but i can do that
+  //later if i really have to. honestly, since actions aren't resource-heavy,
+  //the overhead should be negligible anyway.
+  //TODO: also convert this to explicit iterator, or at least find out what
+  //ranged for does under the hood.
+  for(action *a : actions) {
+    a->update(input);
+  }
+
+  //calculate draw coordinates based on known values
+
   //"s" represents coordinate deflect scale. all dollparts adjust their
   //image size based on scale, but only parts pinned to other parts adjust
   //their coordiantes. 
@@ -42,11 +61,28 @@ void dollpart::draw() {
   draw_x += pin_x * s;
   draw_y += pin_y * s;
 
-  //add some additional deflect based on sf
-  static uint32_t sf_clock = 0;
-  sf_clock++;
-  draw_x += sf_deflect_x * std::sin(sf_clock * sf_speed_x) * s;
-  draw_y += sf_deflect_y * std::sin(sf_clock * sf_speed_y) * s;
-  
+  //now handle the actions
+  for(action *a : actions) {
+    switch (a->get_type()) {
+      case action::TYPE_SF:
+        //sinefloat
+        float sf_data = ((act_sinefloat *)a)->get_output();
+        switch (((act_sinefloat *)a)->get_axis()) {
+          //deflect sf by scale, even if attached to window directly
+          case action::AXIS_X:
+            draw_x += sf_data * scale;
+            break;
+          case action::AXIS_Y:
+            draw_y += sf_data * scale;
+            break;
+        }
+        break;
+    }
+  }
+
+}
+
+void dollpart::draw() {
+ 
   i.draw(draw_x, draw_y, scale);
 }
