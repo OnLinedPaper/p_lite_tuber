@@ -23,6 +23,12 @@ void dollpart::pin_to(int x, int y, const dollpart *p) {
   
   //don't bother with iterators, just pull the list apart from the front
   while(!actions.empty()) {
+    switch(actions.front()->get_type()) {
+      case action::TYPE_SF:
+        act_sinefloat *a = (act_sinefloat *)actions.front();
+        delete a;
+        break;
+    }
     delete actions.front();
     actions.pop_front();
   }

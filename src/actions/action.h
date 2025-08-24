@@ -10,6 +10,8 @@ base class; all derived classes are the actual interactions.
 for the time being, i am going to try to make actions "relative" rather than 
 "absolute", i.e. favor "move 10 units up" to "move to this y coordinate" and
 "rotate 5 degrees clockwise" to "rotate to this degree" etc. 
+additionally, i am going to try to restrict actions to the X and Y axis, since
+additional directions can be effected by combining the two in some proportion.
 
 parts of an action are:
 - "input" - handles input. typically meant to be fed mic audio, but can 
@@ -33,30 +35,27 @@ parts of an action are:
 derived actions are what actually manipulate a dollpart. these actions are:
 
 - "TYPE_SF" - "sinefloat" - returns a periodic sinusoidal output. often used 
-  to make a dollpart float back and forth along an axis.
+  to make a dollpart float back and forth along an axis. has its own subtype
+  to either finish a full sinusoidal pattern or stop halfway through, which
+  replicates a "bounce" behavior
   - const behavior: floats back and forth
-  - pulse behavior: none
-- "TYPE_BN" - "bounce" - returns a half sinusoidal output, which looks like
-  "bouncing".
-  - const behavior: repeatedly bounces
-  - pulse behavior: bounces once
+  - pulse behavior: completes half a cycle, stopping when it reaches "0"
 */
 
 class action {
 public:
   //threshold type bitflags
-  static const uint32_t UP_CONST = 0b0001;
-  static const uint32_t UP_PULSE = 0b0010;
-  static const uint32_t DN_CONST = 0b0100;
-  static const uint32_t DN_PULSE = 0b1000;
+  static const uint32_t UP_CONST = 0;
+  static const uint32_t UP_PULSE = 1;
+  static const uint32_t DN_CONST = 2;
+  static const uint32_t DN_PULSE = 3;
 
   //action type bitflags
-  static const uint32_t TYPE_SF = 0b0001;
-  static const uint32_t TYPE_BN = 0b0010;
+  static const uint32_t TYPE_SF = 1;
 
   //axis bitflags
-  static const uint32_t AXIS_X = 0b01;
-  static const uint32_t AXIS_Y = 0b10;
+  static const uint32_t AXIS_X = 0;
+  static const uint32_t AXIS_Y = 1;
 
   action(float threshold, uint32_t trigger_flags, uint32_t type);
   action() = delete;
@@ -80,11 +79,18 @@ protected:
   bool active;
 
   float last_input;
+  bool is_pulse;
 };
 
-
+//TODO: internally, sinefloat and bounce are identical, differing only in
+//their putput value (which gets put through abs() before return)
 class act_sinefloat : public action {
 public:
+  static const uint32_t FUNC_SIN = 0;
+  static const uint32_t FUNC_COS = 1;
+  static const uint32_t SFTYPE_SF = 0;
+  static const uint32_t SFTYPE_BN = 1;
+
   act_sinefloat() = delete;
   act_sinefloat(
       float threshold
@@ -92,6 +98,8 @@ public:
     , uint32_t axis
     , float deflect
     , float speed
+    , uint32_t sf_type
+    , uint32_t func = FUNC_SIN
   );
   ~act_sinefloat() = default;
   void update(float input);
@@ -103,7 +111,10 @@ private:
   float deflect;
   float speed;
   float clock;
-
+  uint32_t sf_type; //either TYPE_SF or TYPE_BN for sinefloat/bounce
+  uint32_t which_func;
+  bool pulse_sign; //internal variable to track pulses - records whether the
+                   //pure waveform is positive or negative
 };
 
 

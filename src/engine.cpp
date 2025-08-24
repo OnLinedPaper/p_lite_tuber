@@ -65,22 +65,53 @@ void engine::play() {
 
   //let's see if we can get dolls working
   dollpart dp_torso("./resources/control/sona_tuber_draw_head.txt", &r);
-  dp_torso.pin_to(500, 190, NULL);
+  dp_torso.pin_to(500, 90, NULL);
   dp_torso.set_scale(720.0/2800.0);
   //how about an action?
-  dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 30.0, 0.013));
-  dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.008));
+  
+  //this is necessary to prevent a leak. TODO: find out if this is calling copy constructor or something...?
+  act_sinefloat *a = NULL;
+
+  //wobble constantly back and forth
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 30.0, 0.013, act_sinefloat::SFTYPE_SF);
+  dp_torso.add_action(a);
+  delete a;
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.008, act_sinefloat::SFTYPE_SF);
+  dp_torso.add_action(a);
+  delete a;
+
+  //bounce once when starting to speak
+  a = new act_sinefloat(0.0048, action::UP_PULSE, action::AXIS_Y, -200.0, 0.1, act_sinefloat::SFTYPE_BN);
+  dp_torso.add_action(a);
+  delete a;
+  //bounce continuously while speaking
+  //TODO: replace this with an opacity change: mouth open/closed
+  a = new act_sinefloat(0.0048, action::UP_CONST, action::AXIS_Y, 20.0, 0.3, act_sinefloat::SFTYPE_SF);
+  dp_torso.add_action(a);
+  delete a;
 
   dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
-  dp_penhand.pin_to(195, 1205, &dp_torso);
-  dp_penhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 32.5, 0.084));
-  dp_penhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 53.8, 0.056));
+  dp_penhand.pin_to(295, 1795, &dp_torso);
+
+  //scribble randomly
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 32.5, 0.084, act_sinefloat::SFTYPE_SF);
+  dp_penhand.add_action(a);
+  delete a;
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 53.8, 0.056, act_sinefloat::SFTYPE_SF);
+  dp_penhand.add_action(a);
+  delete a;
 
 
   dollpart dp_bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
-  dp_bookhand.pin_to(-195, 1245, &dp_torso);
-  dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 3.25, 0.084));
-  dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 5.38, 0.056));
+  dp_bookhand.pin_to(-95, 1835, &dp_torso);
+
+  //follow the pen at 1/10 speed
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 3.25, 0.084, act_sinefloat::SFTYPE_SF);
+  dp_bookhand.add_action(a);
+  delete a;
+  a = new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 5.38, 0.056, act_sinefloat::SFTYPE_SF);
+  dp_bookhand.add_action(a);
+  delete a;
 
  
   if(false) {
@@ -100,7 +131,7 @@ void engine::play() {
     }
 
     // -   DEBUGGING SECTION   -   -   -   -   -   -   -   -   -   -   -   -
-
+/*
     //draw a little fire on the screen, and make it bounce
     int p_x = r.get_w();
     int p_y = r.get_h() - (r.get_h() / 10) - i.get_h();
@@ -116,8 +147,8 @@ void engine::play() {
     i.draw(p_x * 5 / 10, p_y - p_y_rmslog);
 
     //std::cout << "            " << a_rms.get_level() << "\r" << std::flush;
-
-    dp_torso.update();
+*/
+    dp_torso.update(a_rms.get_level());
     dp_penhand.update();
     dp_bookhand.update();
 
