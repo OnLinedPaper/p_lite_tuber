@@ -3,22 +3,22 @@ DIR := ${CURDIR}
 CFLAGS= -Wall -Wextra -Wpedantic --std=c++17 -I$(DIR)
 OFLAGS= -O3
 DFLAGS= -g -ggdb -O0
-LFLAGS= -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
+LFLAGS= -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lX11
 DDIR= debugging
 XDIR= bin
 BDIR= build
 SDIR= src
 DBDIR= build/dbuild
 
-DEPS:= main.h engine.h render.h image.h audio.h doll.h action.h
+DEPS:= main.h engine.h render.h image.h audio.h doll.h action.h screenwatch.h
 
-OBJS:= action.o audio.o engine.o doll.o image.o main.o render.o 
+OBJS:= action.o audio.o doll.o engine.o image.o main.o render.o screenwatch.o
 DOBJS:= $(addprefix $(DBDIR)/,$(OBJS))
 OBJS:= $(addprefix $(BDIR)/,$(OBJS))
 
-SRCS:= main.cpp engine.cpp render.cpp image.cpp audio.cpp doll.cpp action.cpp
+SRCS:= main.cpp engine.cpp render.cpp image.cpp audio.cpp doll.cpp action.cpp screenwatch.cpp
 
-PATHS:= . renders images audio doll actions
+PATHS:= . renders images audio doll actions screenwatch
 VPATH:= $(addprefix src/,$(PATHS))
 
 # copied more or less verbatim from qdbp's makefile
@@ -58,7 +58,7 @@ clean:
 
 #TODO: clean out the log pollution from nvidia's garbage drivers
 mem:
-	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=$(DDIR)/.v.out $(DDIR)/debug && \
+	@valgrind --leak-check=full --show-leak-kinds=all --show-reachable=no --track-origins=yes --verbose --log-file=$(DDIR)/.v.out $(DDIR)/debug && \
 	cat $(DDIR)/.v.out | awk '/HEAP SUMMARY/{p=1}p' > $(DDIR)/.v2.out && \
 	sed 's/==.*== //' $(DDIR)/".v2.out" > $(DDIR)/"full-valgrind-out.txt" && \
 	cat $(DDIR)/full-valgrind-out.txt > $(DDIR)/valgrind-out.txt && \

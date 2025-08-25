@@ -11,16 +11,7 @@ dollpart::dollpart(std::string image_path, render *r) :
   //, actions //inits itself empty
 { }
 
-dollpart::~dollpart() { }
-
-void dollpart::pin_to(int x, int y, const dollpart *p) {
-  pin_x = x;
-  pin_y = y;
-  parent = p;
-  if(parent != NULL) {
-    scale = parent->get_scale();
-  }
-  
+dollpart::~dollpart() { 
   //don't bother with iterators, just pull the list apart from the front
   while(!actions.empty()) {
     switch(actions.front()->get_type()) {
@@ -29,8 +20,18 @@ void dollpart::pin_to(int x, int y, const dollpart *p) {
         delete a;
         break;
     }
-    delete actions.front();
+    //delete actions.front();
     actions.pop_front();
+  }
+
+}
+
+void dollpart::pin_to(int x, int y, const dollpart *p) {
+  pin_x = x;
+  pin_y = y;
+  parent = p;
+  if(parent != NULL) {
+    scale = parent->get_scale();
   }
 }
 
