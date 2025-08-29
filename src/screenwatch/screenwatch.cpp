@@ -1,10 +1,44 @@
 #include "src/screenwatch/screenwatch.h"
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/Xproto.h>
+#include <iostream>
 
 screenwatch::screenwatch() :
     d(XOpenDisplay(NULL))
-{ }
+{ 
+  XSetErrorHandler([](Display *d, XErrorEvent *e) -> int { 
+      //this anon function is designed to specifically catch BadWindow errors,
+      //which can arise if the focused window is closed after being captured
+      //but before its properties are assessed.
+      //any other error shows up, and it prints info, then aborts.
+      
+      //no-op to squash "unused variable"
+      if(d) { ;; }
+
+      if(e && e->type == 0) {
+        //not sure why this pops up sometimes, but 0 is apparently "No error",
+        //so i'm ignoring it.
+        return e->type;
+      }
+      else if(e && e->type == BadWindow) {
+        //ignorable in the context i'm using it - tried to get data from a 
+        //focused window after it closed.
+        std::cerr << "screenwatch caught BadWindow - ignoring." << std::endl; 
+        return e->type; 
+      }
+      else {
+        //ok, something ACTUALLY went wrong. print the error and abort.
+        char c[2000];
+        int len = 2000;
+        XGetErrorText(d, e->type, c, len);
+        std::cerr << "S-H-I-T! unhandled error " << e->type;
+        std::cerr << " in screenwatch! info: " << c << std::endl;
+        std::abort();
+      }
+  });
+  //XSetErrorHandler(NULL);
+}
 
 screenwatch::~screenwatch() {
   XCloseDisplay(d);
@@ -28,6 +62,8 @@ void screenwatch::get_screen_title(std::string *s) {
 
   //get the focused window
   XGetInputFocus(d, &f_window, &f_return);
+  //one-time init for edge cases where the focused window is immediatele closed
+  r_w_r = XDefaultRootWindow(d);
 
   bool quit = false;
   while(!quit) {
@@ -54,6 +90,13 @@ void screenwatch::get_screen_title(std::string *s) {
     }
 
     //root window never seems to be named, so no "else if" needed here
+    if(!f_window) {
+      //window was closed
+      //this line technically could be called before r_w_r is initialized;
+      //in practice, the following line trivializes the error. more
+      //pertinently, attempting to "fix" it somehow breaks it worse. weird.
+      f_window = r_w_r;
+    }
     if(f_window == r_w_r) {
       *s = "[root]" + *s;
       quit = true;
