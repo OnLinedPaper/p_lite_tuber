@@ -146,5 +146,9 @@ void image::draw(int x, int y, float scale) const {
   int frame_to_render = 0;
   //TODO: frame stuff here, sooner rather than later.
   SDL_Texture *t = t_vec[frame_to_render];
+  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
+  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_MOD);
+  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_ADD);
+  SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
   SDL_RenderCopyEx(r->get_r(), t, NULL, &dest_r, 0, NULL, SDL_FLIP_NONE);
 }

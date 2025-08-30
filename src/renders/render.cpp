@@ -7,9 +7,14 @@ render::render() :
   , r(NULL)
   , w_width(960)
   , w_height(720)
+/*
   , c_r(0x0A)
   , c_g(0xAA)
   , c_b(0xFF) 
+*/
+  , c_r(0x00)
+  , c_g(0x00)
+  , c_b(0x00)
 {
   //init_w();
   //init_r();
@@ -59,10 +64,14 @@ void render::init_r() {
   if(r == NULL) {
     //throw an error and die
   }
+  
+  //SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_ADD);
+  SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 }
 
 void render::show() {
   
+  SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
   SDL_RenderPresent(r);
   
   SDL_SetRenderDrawColor(r, c_r, c_g, c_b, 0xFF);

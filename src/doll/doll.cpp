@@ -86,7 +86,7 @@ void dollpart::update(float input) {
         break;
     }
   }
-
+//std::cout << pin_x << ", " << pin_y << " | " << draw_x << ", " << draw_y << std::endl;
 }
 
 void dollpart::draw() {
