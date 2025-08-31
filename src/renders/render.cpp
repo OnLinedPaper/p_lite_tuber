@@ -7,14 +7,9 @@ render::render() :
   , r(NULL)
   , w_width(960)
   , w_height(720)
-/*
   , c_r(0x0A)
   , c_g(0xAA)
   , c_b(0xFF) 
-*/
-  , c_r(0x00)
-  , c_g(0x00)
-  , c_b(0x00)
 {
   //init_w();
   //init_r();
@@ -66,7 +61,7 @@ void render::init_r() {
   }
   
   //SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_ADD);
-  SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
+  SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
 }
 
 void render::show() {
