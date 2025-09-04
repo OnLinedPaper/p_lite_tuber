@@ -6,7 +6,6 @@ debugging
 resources/*
 todo.txt
 old
-zscraps/*
 
 #vim stuff
 *.swp

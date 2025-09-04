@@ -1,0 +1,572 @@
+using screen: 0
+no name set for window 0
+window 1 name: paper@paper-frankie: ~/Desktop/xprop
+window 2 name: mutter guard window
+no name set for window 3
+window 4 name: gnome-shell
+no name set for window 5
+no name set for window 6
+no name set for window 7
+no name set for window 8
+no name set for window 9
+no name set for window 10
+window 11 name: gsd-keyboard
+window 12 name: gsd-power
+window 13 name: gsd-media-keys
+window 14 name: gsd-xsettings
+window 15 name: gsd-wacom
+window 16 name: gsd-color
+no name set for window 17
+window 18 name: ibus-x11
+window 19 name: ibus-extension-gtk3
+window 20 name: ibus-xim
+window 21 name: evolution-alarm-notify
+window 22 name: Qt Selection Owner for kdeconnectd
+window 23 name: kdeconnectd
+window 24 name: Ubuntu Software
+no name set for window 25
+window 26 name: 
+window 27 name: xdg-desktop-portal-gtk
+window 28 name: 
+no name set for window 29
+window 30 name: Calendar
+window 31 name: seahorse
+window 32 name: Chromium clipboard
+window 33 name: Discord
+window 34 name: Discord
+window 35 name: Discord
+no name set for window 36
+no name set for window 37
+window 38 name: Firefox
+window 39 name: Firefox
+window 40 name: Firefox
+window 41 name: Firefox
+window 42 name: Firefox
+window 43 name: Qt Selection Owner for krita
+window 44 name: Krita
+window 45 name: Krita
+window 46 name: Qt Selection Owner for antimicrox
+window 47 name: antimicrox
+window 48 name: antimicrox
+window 49 name: steam
+no name set for window 50
+window 51 name: Chromium clipboard
+window 52 name: steamwebhelper
+window 53 name: steamwebhelper
+no name set for window 54
+no name set for window 55
+no name set for window 56
+window 57 name: update-notifier
+no name set for window 58
+window 59 name: update-notifier
+no name set for window 60
+no name set for window 61
+no name set for window 62
+no name set for window 63
+window 64 name: Steam
+no name set for window 65
+no name set for window 66
+no name set for window 67
+no name set for window 68
+no name set for window 69
+no name set for window 70
+no name set for window 71
+no name set for window 72
+no name set for window 73
+no name set for window 74
+no name set for window 75
+no name set for window 76
+no name set for window 77
+no name set for window 78
+no name set for window 79
+no name set for window 80
+no name set for window 81
+no name set for window 82
+no name set for window 83
+no name set for window 84
+no name set for window 85
+no name set for window 86
+no name set for window 87
+no name set for window 88
+no name set for window 89
+no name set for window 90
+no name set for window 91
+no name set for window 92
+no name set for window 93
+no name set for window 94
+window 95 name: Firefox
+no name set for window 96
+no name set for window 97
+no name set for window 98
+no name set for window 99
+no name set for window 100
+no name set for window 101
+window 102 name: Firefox
+no name set for window 103
+no name set for window 104
+no name set for window 105
+no name set for window 106
+no name set for window 107
+no name set for window 108
+no name set for window 109
+no name set for window 110
+no name set for window 111
+no name set for window 112
+no name set for window 113
+no name set for window 114
+no name set for window 115
+no name set for window 116
+no name set for window 117
+no name set for window 118
+no name set for window 119
+no name set for window 120
+no name set for window 121
+no name set for window 122
+no name set for window 123
+no name set for window 124
+no name set for window 125
+no name set for window 126
+no name set for window 127
+no name set for window 128
+no name set for window 129
+no name set for window 130
+no name set for window 131
+no name set for window 132
+no name set for window 133
+no name set for window 134
+no name set for window 135
+no name set for window 136
+no name set for window 137
+no name set for window 138
+no name set for window 139
+no name set for window 140
+no name set for window 141
+no name set for window 142
+no name set for window 143
+no name set for window 144
+no name set for window 145
+no name set for window 146
+no name set for window 147
+no name set for window 148
+no name set for window 149
+no name set for window 150
+no name set for window 151
+no name set for window 152
+no name set for window 153
+no name set for window 154
+no name set for window 155
+no name set for window 156
+no name set for window 157
+no name set for window 158
+no name set for window 159
+no name set for window 160
+no name set for window 161
+no name set for window 162
+no name set for window 163
+no name set for window 164
+no name set for window 165
+no name set for window 166
+no name set for window 167
+no name set for window 168
+no name set for window 169
+no name set for window 170
+no name set for window 171
+no name set for window 172
+no name set for window 173
+no name set for window 174
+no name set for window 175
+no name set for window 176
+no name set for window 177
+no name set for window 178
+no name set for window 179
+no name set for window 180
+no name set for window 181
+no name set for window 182
+no name set for window 183
+no name set for window 184
+no name set for window 185
+no name set for window 186
+no name set for window 187
+no name set for window 188
+no name set for window 189
+window 190 name: gedit
+no name set for window 191
+window 192 name: gedit
+no name set for window 193
+no name set for window 194
+no name set for window 195
+no name set for window 196
+no name set for window 197
+no name set for window 198
+no name set for window 199
+no name set for window 200
+no name set for window 201
+no name set for window 202
+no name set for window 203
+no name set for window 204
+no name set for window 205
+no name set for window 206
+no name set for window 207
+no name set for window 208
+no name set for window 209
+no name set for window 210
+no name set for window 211
+no name set for window 212
+no name set for window 213
+no name set for window 214
+no name set for window 215
+no name set for window 216
+no name set for window 217
+no name set for window 218
+no name set for window 219
+no name set for window 220
+window 221 name: update-manager
+no name set for window 222
+no name set for window 223
+no name set for window 224
+no name set for window 225
+no name set for window 226
+no name set for window 227
+no name set for window 228
+no name set for window 229
+no name set for window 230
+no name set for window 231
+no name set for window 232
+window 233 name: Qt Clipboard Requestor Window
+window 234 name: xdg-desktop-portal-gnome
+no name set for window 235
+window 236 name: 
+window 237 name: 
+window 238 name: 
+window 239 name: 
+window 240 name: gnome-terminal
+window 241 name: Terminal
+window 242 name: Terminal
+no name set for window 243
+window 244 name: 
+window 245 name: 
+window 246 name: 
+window 247 name: 
+window 248 name: 
+window 249 name: 
+no name set for window 250
+no name set for window 251
+no name set for window 252
+no name set for window 253
+no name set for window 254
+no name set for window 255
+no name set for window 256
+no name set for window 257
+no name set for window 258
+no name set for window 259
+no name set for window 260
+no name set for window 261
+no name set for window 262
+no name set for window 263
+no name set for window 264
+no name set for window 265
+no name set for window 266
+no name set for window 267
+no name set for window 268
+no name set for window 269
+no name set for window 270
+no name set for window 271
+no name set for window 272
+no name set for window 273
+no name set for window 274
+no name set for window 275
+no name set for window 276
+no name set for window 277
+no name set for window 278
+no name set for window 279
+no name set for window 280
+no name set for window 281
+no name set for window 282
+no name set for window 283
+no name set for window 284
+no name set for window 285
+no name set for window 286
+no name set for window 287
+no name set for window 288
+no name set for window 289
+no name set for window 290
+no name set for window 291
+no name set for window 292
+no name set for window 293
+no name set for window 294
+no name set for window 295
+no name set for window 296
+no name set for window 297
+no name set for window 298
+no name set for window 299
+no name set for window 300
+no name set for window 301
+no name set for window 302
+no name set for window 303
+no name set for window 304
+no name set for window 305
+no name set for window 306
+no name set for window 307
+no name set for window 308
+no name set for window 309
+no name set for window 310
+no name set for window 311
+no name set for window 312
+no name set for window 313
+no name set for window 314
+no name set for window 315
+no name set for window 316
+no name set for window 317
+no name set for window 318
+no name set for window 319
+no name set for window 320
+no name set for window 321
+no name set for window 322
+no name set for window 323
+no name set for window 324
+no name set for window 325
+no name set for window 326
+no name set for window 327
+no name set for window 328
+no name set for window 329
+no name set for window 330
+no name set for window 331
+no name set for window 332
+no name set for window 333
+no name set for window 334
+no name set for window 335
+no name set for window 336
+window 337 name: gnome-terminal
+no name set for window 338
+no name set for window 339
+no name set for window 340
+no name set for window 341
+no name set for window 342
+no name set for window 343
+no name set for window 344
+no name set for window 345
+no name set for window 346
+no name set for window 347
+no name set for window 348
+no name set for window 349
+no name set for window 350
+no name set for window 351
+no name set for window 352
+no name set for window 353
+no name set for window 354
+no name set for window 355
+no name set for window 356
+no name set for window 357
+no name set for window 358
+no name set for window 359
+no name set for window 360
+no name set for window 361
+no name set for window 362
+no name set for window 363
+no name set for window 364
+no name set for window 365
+no name set for window 366
+no name set for window 367
+no name set for window 368
+no name set for window 369
+no name set for window 370
+no name set for window 371
+no name set for window 372
+no name set for window 373
+no name set for window 374
+no name set for window 375
+no name set for window 376
+no name set for window 377
+no name set for window 378
+no name set for window 379
+no name set for window 380
+no name set for window 381
+no name set for window 382
+no name set for window 383
+no name set for window 384
+no name set for window 385
+no name set for window 386
+no name set for window 387
+no name set for window 388
+no name set for window 389
+no name set for window 390
+no name set for window 391
+no name set for window 392
+no name set for window 393
+no name set for window 394
+no name set for window 395
+no name set for window 396
+window 397 name: https://duckduckgo.com/?q=hunting+horn+meme&iar=images&t=ffab&iai=https%3A%2F%2Fhornmatters.com%2Fwp-content%2Fuploads%2F2012%2F04%2Fhunting-horn.jpg
+no name set for window 398
+no name set for window 399
+no name set for window 400
+no name set for window 401
+no name set for window 402
+no name set for window 403
+no name set for window 404
+no name set for window 405
+no name set for window 406
+no name set for window 407
+no name set for window 408
+no name set for window 409
+no name set for window 410
+no name set for window 411
+no name set for window 412
+no name set for window 413
+no name set for window 414
+no name set for window 415
+no name set for window 416
+no name set for window 417
+no name set for window 418
+no name set for window 419
+no name set for window 420
+no name set for window 421
+no name set for window 422
+no name set for window 423
+no name set for window 424
+no name set for window 425
+no name set for window 426
+no name set for window 427
+no name set for window 428
+no name set for window 429
+no name set for window 430
+no name set for window 431
+no name set for window 432
+no name set for window 433
+no name set for window 434
+no name set for window 435
+no name set for window 436
+no name set for window 437
+no name set for window 438
+no name set for window 439
+no name set for window 440
+no name set for window 441
+no name set for window 442
+no name set for window 443
+no name set for window 444
+no name set for window 445
+no name set for window 446
+no name set for window 447
+no name set for window 448
+no name set for window 449
+no name set for window 450
+no name set for window 451
+no name set for window 452
+no name set for window 453
+no name set for window 454
+no name set for window 455
+no name set for window 456
+no name set for window 457
+no name set for window 458
+no name set for window 459
+no name set for window 460
+no name set for window 461
+no name set for window 462
+no name set for window 463
+no name set for window 464
+no name set for window 465
+no name set for window 466
+no name set for window 467
+no name set for window 468
+no name set for window 469
+no name set for window 470
+no name set for window 471
+no name set for window 472
+no name set for window 473
+no name set for window 474
+no name set for window 475
+no name set for window 476
+no name set for window 477
+no name set for window 478
+no name set for window 479
+no name set for window 480
+no name set for window 481
+no name set for window 482
+no name set for window 483
+no name set for window 484
+no name set for window 485
+no name set for window 486
+no name set for window 487
+no name set for window 488
+no name set for window 489
+no name set for window 490
+no name set for window 491
+no name set for window 492
+no name set for window 493
+no name set for window 494
+no name set for window 495
+no name set for window 496
+no name set for window 497
+window 498 name: Firefox
+no name set for window 499
+no name set for window 500
+no name set for window 501
+no name set for window 502
+no name set for window 503
+no name set for window 504
+no name set for window 505
+no name set for window 506
+no name set for window 507
+no name set for window 508
+no name set for window 509
+no name set for window 510
+no name set for window 511
+no name set for window 512
+no name set for window 513
+no name set for window 514
+no name set for window 515
+no name set for window 516
+no name set for window 517
+no name set for window 518
+no name set for window 519
+no name set for window 520
+no name set for window 521
+no name set for window 522
+no name set for window 523
+no name set for window 524
+no name set for window 525
+no name set for window 526
+no name set for window 527
+no name set for window 528
+no name set for window 529
+no name set for window 530
+no name set for window 531
+no name set for window 532
+no name set for window 533
+no name set for window 534
+no name set for window 535
+no name set for window 536
+no name set for window 537
+no name set for window 538
+no name set for window 539
+no name set for window 540
+no name set for window 541
+no name set for window 542
+no name set for window 543
+no name set for window 544
+window 545 name: Firefox
+window 546 name: Scroll forwards
+window 547 name: 
+no name set for window 548
+no name set for window 549
+no name set for window 550
+no name set for window 551
+no name set for window 552
+no name set for window 553
+no name set for window 554
+no name set for window 555
+window 556 name: friend_notes.txt (~/Desktop) - gedit
+no name set for window 557
+no name set for window 558
+window 559 name: Unmute tab
+window 560 name: Firefox
+window 561 name: Open a new tab (Ctrl+T)
+no name set for window 562
+no name set for window 563
+no name set for window 564
+window 565 name: paper@paper-frankie: ~/p_lite_tuber
+window 566 name: gnome-shell
+window 567 name: Firefox
+window 568 name: Firefox
+window 569 name: Controlling Input Focus
+focused window is nameless
