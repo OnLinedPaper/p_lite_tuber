@@ -1,5 +1,5 @@
 #include "src/renders/render.h"
-//#include <iostream>
+#include <iostream>
 
 //init SDL video and png image here
 render::render() : 
@@ -30,32 +30,35 @@ void render::init() {
 
 void render::init_w() { 
 
-  SDL_DisplayMode m;
-  SDL_zero(m);
-  int e = SDL_GetDesktopDisplayMode(0, &m);
-  if(e != 0) { 
+  int num_displays;
+  SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
+  for(int i=0; i<num_displays; i++) {
+    std::cout << displays[i] << std::endl;
+  }
+  const SDL_DisplayMode *m = SDL_GetCurrentDisplayMode(displays[0]);
+  if(m == nullptr) { 
     //throw error and die 
-    //std::cout << SDL_GetError(); 
+    std::cout << SDL_GetError() << std::endl; 
+    std::abort();
   }
 
   //stick it in the bottom right corner
   w = SDL_CreateWindow(
       "p_lite_pngtuber"
-    , m.w - w_width
-    , m.h - w_height
     , w_width
     , w_height
-    , SDL_WINDOW_SHOWN
+    , 0 //TODO: is this right?
   );
   if(w == NULL) {
     //throw an error and die
   }
+  SDL_SetWindowPosition(w, m->w - w_width, m->h - w_height);
 }
 
 void render::init_r() { 
   SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 
-  r = SDL_CreateRenderer(w, -1, SDL_RENDERER_ACCELERATED);
+  r = SDL_CreateRenderer(w, NULL);
   if(r == NULL) {
     //throw an error and die
   }

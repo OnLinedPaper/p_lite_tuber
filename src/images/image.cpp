@@ -1,5 +1,7 @@
 #include "src/images/image.h"
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL_render.h>
 #include <iostream>
 #include <fstream>
 
@@ -46,7 +48,14 @@ image::image(const std::string c_file, render *r) :
       height <= 0
   ) { fail = true; }
 
-
+  //SDL3: past this point, switching out old method with new one. 
+  //TODO: add support for multi-frame animations, work out how. for now, just
+  //assume single-frame images. odds are it'll be something like a filename
+  //list, or perhaps just a count of frames with "00000" "00001" etc after
+  t_vec.push_back(IMG_LoadTexture(r->get_r(), image_file_path.c_str()));
+  
+  //TODO: remove this later after i'm through with it
+/*
   //get the image
   SDL_Surface *raw_surf = IMG_Load(image_file_path.c_str());
   if(raw_surf == NULL) { fail = true; }
@@ -70,15 +79,10 @@ image::image(const std::string c_file, render *r) :
     
     for(int i=0; i<frames; i++) {
       //make a surface to copy the frame onto
-      SDL_Surface *surf = SDL_CreateRGBSurface(
-          0
-        , width
+      SDL_Surface *surf = SDL_CreateSurface(
+          width
         , height
-        , raw_surf->format->BitsPerPixel
-        , raw_surf->format->Rmask
-        , raw_surf->format->Gmask
-        , raw_surf->format->Bmask
-        , raw_surf->format->Amask
+        , raw_surf->format
       );
 
       //offset for the frame we're grabbing
@@ -100,11 +104,17 @@ image::image(const std::string c_file, render *r) :
         t_vec.push_back(t);
       }
       //free the surface
-      SDL_FreeSurface(surf);
+      SDL_DestroySurface(surf);
     }
     //free the surface
-    SDL_FreeSurface(raw_surf);
+    SDL_DestroySurface(raw_surf);
+
+    //TODO: fix or remove
+    //uh... just... try overwriting the first texture in the vec
+    SDL_DestroyTexture(t_vec.at(0));
+    t_vec.at(0) = IMG_LoadTexture(r->get_r(), image_file_path.c_str());
   }
+  */
 }
 
 image::~image() { 
@@ -135,7 +145,7 @@ void image::draw(int x, int y, float scale) const {
       y + height * scale < 0
   ) { return; }
 
-  SDL_Rect dest_r;
+  SDL_FRect dest_r;
   dest_r.x = x;
   dest_r.y = y;
   dest_r.w = width * scale;
@@ -150,5 +160,6 @@ void image::draw(int x, int y, float scale) const {
   //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_MOD);
   //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_ADD);
   SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
-  SDL_RenderCopyEx(r->get_r(), t, NULL, &dest_r, 0, NULL, SDL_FLIP_NONE);
+  SDL_SetRenderDrawBlendMode(r->get_r(), SDL_BLENDMODE_BLEND);
+  SDL_RenderTexture(r->get_r(), t, NULL, &dest_r);
 }

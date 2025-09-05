@@ -30,6 +30,7 @@ void engine::play() {
   image penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
   image bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
 
+/*
   //ok, try to init an audio now
   std::vector<std::pair<int, std::string>> devices;
   audio::get_devices(devices);
@@ -40,24 +41,25 @@ void engine::play() {
     std::cout << d.first << " " << d.second;
     std::cout << std::endl;
   }
+*/
 
   audio a_rms(
-      0             //device id
-    , 44100/50      //sampling frequency (per second)
-    , 4096/512      //samples before a callback
-    , 1             //1 input channel
-    , 300           //300ms RMS audio interval
-    , audio::RMS    //use RMS audio processing
+//      0             //device id
+//    , 44100/50      //sampling frequency (per second)
+//    , 4096/512      //samples before a callback
+//    , 1             //1 input channel
+//    , 300           //300ms RMS audio interval
+    /*,*/ audio::RMS    //use RMS audio processing
   );
 
-  audio a_rmslog(
-      0             //device id
-    , 44100/50      //sampling frequency (per second)
-    , 4096/512      //samples before a callback
-    , 1             //1 input channel
-    , 300           //300ms RMS audio interval
-    , audio::RMSLOG //use RMSLOG audio processing
-  );
+//  audio a_rmslog(
+//      0             //device id
+//    , 44100/50      //sampling frequency (per second)
+//    , 4096/512      //samples before a callback
+//    , 1             //1 input channel
+//    , 300           //300ms RMS audio interval
+//    /*,*/ audio::RMSLOG //use RMSLOG audio processing
+//  );
 
   if(! a_rms.is_init() ) { 
     std::cout << "S-H-I-T!" << SDL_GetError() << std::endl; 
@@ -119,7 +121,7 @@ void engine::play() {
     //event handling loop - get user inputs
     while(SDL_PollEvent(&e) != 0) {
       //check to see if the window was closed out
-      if(e.type == SDL_QUIT) { quit = true; }
+      if(e.type == SDL_EVENT_QUIT) { quit = true; }
     }
 
     // -   DEBUGGING SECTION   -   -   -   -   -   -   -   -   -   -   -   -
@@ -140,6 +142,9 @@ void engine::play() {
 
     //std::cout << "            " << a_rms.get_level() << "\r" << std::flush;
 */
+    a_rms.update();
+    //a_rmslog.update();
+
     dp_torso.update(a_rms.get_level());
     dp_mouth_closed.update(a_rms.get_level());
     dp_mouth_open.update(a_rms.get_level());
@@ -179,24 +184,26 @@ engine::engine() : is_init(true) {
   //therefore, we'll init the vars here instead.
 
   //audio subsystems
-  if(SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+  if(SDL_InitSubSystem(SDL_INIT_AUDIO) == false) {
     //error and die, can't have pngtuber without audio
     std::cout << "S-H-I-T! couldn't init audio! error: " << SDL_GetError();
     is_init = false;
   }
 
   //video subsystems
-  if(SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+  if(SDL_InitSubSystem(SDL_INIT_VIDEO) == false) {
     //error and die, can't have pngtuber without video
     std::cout << "S-H-I-T! couldn't init video! error: " << SDL_GetError();
     is_init = false;
   }
+/*
+  //no longer needed w/ SDL3
   else if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
     //error and die, need the PNGs for a pngtuber
     std::cout << "S-H-I-T! couldn't init pngs! error: " << SDL_GetError();
     is_init = false;
   }
-
+*/
   
   //now init other stuff
   r.init();
@@ -234,6 +241,7 @@ void engine::print_debug_swirly() const {
 }
 
 engine::~engine() {
-  IMG_Quit();
+  //no longer needed w/ SDL3
+  //IMG_Quit();
   SDL_Quit();
 }

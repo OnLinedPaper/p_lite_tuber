@@ -1,156 +1,135 @@
 #include "src/audio/audio.h"
-#include <SDL2/SDL.h>
-#include <vector>
-#include <iostream>
+#include <cmath>
+  #include <iostream>
 
-audio::audio() : 
+audio::audio(audio_proc p) :
     is_initialized(false)
-  , hardware_id(1)
-  , device_id(-1)
-  , sample_freq(44100)
-  , sample_count(4096)
-  , channels(1)
-  , proc_method(RAW)
-  , rms_interval(300) //300ms rms interval
-  , rms_max(sample_freq * rms_interval / 1000.0)
-{ 
-  rms_arr.reserve(rms_max);
-  for(int i=0; i<rms_max; i++) { rms_arr.push_back(0); }
-}
-
-audio::audio(int h, int freq, int count, int chan, int interval, audio_proc p) :
-    is_initialized(false)
-  , hardware_id(h)
-  , device_id(-1)
-  , sample_freq(freq)
-  , sample_count(count)
-  , channels(chan)
+  , stream(nullptr)
   , proc_method(p)
-  , rms_interval(interval)
-  , rms_max(sample_freq * rms_interval / 1000.0)
+  , rms_interval(300)
+  , rms_max(0)
+  , min_buffer_time(1.0/24.0)
+  , level(0)
 { 
+  //create a standardized audio spec and use it to open the default recording
+  //device, which iirc changes dynamically as things are plugged and
+  //unplugged.
+  //TODO: check what happens when all inputs are unplugged.
+  //TODO: let user choose input device, later
+
+  SDL_AudioSpec spec { SDL_AUDIO_F32LE, 1, 44100 };
+  stream = SDL_OpenAudioDeviceStream(
+      SDL_AUDIO_DEVICE_DEFAULT_RECORDING
+    , &spec
+    , NULL
+    , NULL
+  );
+
+  if(!stream) {
+    //TODO: deal with this later. could abort, could just warn user there's
+    //no input device. 
+  }
+
+
+  //set up RMS stuff
+  rms_max = spec.freq * rms_interval / 50000.0;
   rms_arr.reserve(rms_max);
   for(int i=0; i<rms_max; i++) { rms_arr.push_back(0); }
-  init_audio();
+
+  SDL_ResumeAudioStreamDevice(stream);
+
+  is_initialized = true;
 }
 
 audio::~audio() {
-  //if we initialized, be sure to close things done when we're done
-  if(is_initialized) {
-    SDL_PauseAudioDevice(device_id, SDL_TRUE);
-    SDL_CloseAudioDevice(device_id);
-    is_initialized = false;
-  }
-
-  
+  SDL_PauseAudioStreamDevice(stream);
+  SDL_DestroyAudioStream(stream);
 }
 
-void audio::init_audio() {
-  SDL_AudioSpec spec_des, spec_act;
-  SDL_zero(spec_des);
-  SDL_zero(spec_act);
+/*
+check how much data is available in the buffer already - if there's enough
+to perform a processing check, grab it and do so; else, do nothing.
+*/
+void audio::update() {
+  //slightly redundant but let's be on the safe side
+  SDL_AudioSpec spec;
+  SDL_GetAudioStreamFormat(stream, &spec, NULL);
 
-  spec_des.freq = sample_freq;
-  spec_des.format = AUDIO_F32; //defaulting to F32
-  spec_des.channels = channels;
-  spec_des.samples = sample_count;
-  spec_des.callback = static_stream_callback;
-  spec_des.userdata = this; // <-- the secret sauce!
+  //TODO: figure out why the fuck this works. this stream doesn't appear to
+  //do anything, but when i remove it, the other audio stream breaks and
+  //starts slowing down. i'm also 80% sure this is leaking memory.
+  static SDL_AudioStream *pbk = SDL_OpenAudioDeviceStream(
+      SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK
+    , &spec
+    , NULL
+    , NULL
+  ); if(pbk != nullptr) { ;; } // <-- no-op to squash compiler warning
 
-  //attempt to open the desired audio device
-  device_id = SDL_OpenAudioDevice(
-      SDL_GetAudioDeviceName(hardware_id, SDL_TRUE)
-    , SDL_TRUE
-    , &spec_des
-    , &spec_act
-    , SDL_AUDIO_ALLOW_FORMAT_CHANGE
-  );
+  const int min_size = (SDL_AUDIO_FRAMESIZE(spec) * spec.freq) * min_buffer_time;
 
-  if(device_id == 0) {
-    //something went wrong! just return, though - the user can call SDL_Error()
-    //on their own time when they see the init failed.
+  if(min_size > SDL_GetAudioStreamAvailable(stream)) {
+    //not enough data here to update yet
     return;
   }
 
-  //TODO: compare desired and actual specs here, and... do something if they
-  //don't match, i guess?? i'm not worried about it right now
-
-  is_initialized = true;
-
-  //roll playback!
-  SDL_PauseAudioDevice(device_id, SDL_FALSE);
-}
-
-void audio::get_devices(std::vector<std::pair<int, std::string>> &d) {
-  int device_count = SDL_GetNumAudioDevices(SDL_TRUE);
-  for(int i=0; i<device_count; i++) {
-    d.push_back({i, SDL_GetAudioDeviceName(i, SDL_TRUE)});
-  }
-
-}
-
-void audio::static_stream_callback(void *userdata, uint8_t *stream, int len) { 
-  //userdata holds the class; reinterpret it and then call its stream callback
-  //https://stackoverflow.com/a/61842657
-  const auto a = reinterpret_cast<audio *>(userdata);
-  a->stream_callback(stream, len);
-}
-
-void audio::stream_callback(uint8_t *stream, int len) { 
-  //first, convert the stream data. it's coming in as raw uint8_t, and needs
-  //to be coverted to PCM format.
-  //https://stackoverflow.com/a/45864513/7431860
-  const float *fs = (const float *)stream;
-  const float *fe = fs + len / 4;
+  //process the data
+  Uint8 *buf = new Uint8[min_size];
+  const int bytes_read = SDL_GetAudioStreamData(stream, buf, min_size);
 
   //precompute these values
   static const float PCM_MAX = 32767.0;
   static const float PCM_MAX_SQRT = std::sqrt(PCM_MAX);
   static const float PCM_MAX_LOG = std::log(PCM_MAX);
 
+  //convert the incoming data to pcm
+  //https://stackoverflow.com/a/45864513/7431860
+  const float *fs = (const float *)buf;
+  const float *fe = fs + bytes_read / 4;
+
   for( ; fs < fe; ++fs) {
     int16_t pcm = std::abs(*fs * PCM_MAX); //pcm now holds raw PCM data!
 
-    //second, use the chosen processing method to calculate the audio level
+    //now, calculate level from these values
     switch(proc_method) {
-      case RAW:
-        level = pcm / PCM_MAX;
-        break;
-      case SQRT:
-        level = std::sqrt(pcm) / PCM_MAX_SQRT;
-        break;
-      case RMSLOG:
-      case RMS:
-        //dont run this unless we're using rms
-        static int rms_pos = 0;
-        rms_arr[rms_pos] = pcm * pcm;
-        rms_pos++;
-        rms_pos %= rms_max;
+    case RAW:
+      level = pcm / PCM_MAX;
+      break;
+    case SQRT:
+      level = std::sqrt(pcm) / PCM_MAX_SQRT;
+      break;
+    case RMSLOG:
+    case RMS:
+      //dont run this unless we're using rms
+      static int rms_pos = 0;
+      rms_arr[rms_pos] = pcm * pcm;
+      rms_pos++;
+      rms_pos %= rms_max;
 
-        level = 0;
-        //TODO: this loop is exiting immediately. why?
-        for(const float &f : rms_arr) {
-          level += f;
-        }
-        level = std::sqrt((1.0/float(rms_max)) * level);
+      level = 0;
+      for(const float &f : rms_arr) {
+        level += f;
+      }
+      level = std::sqrt((1.0/float(rms_max)) * level);
 
-        //last-second check to see what form we want
-        if(proc_method == RMS) {
-            level /= 32767.0;
-        }
-        else if(proc_method == RMSLOG) {
-          level = std::log(level) / PCM_MAX_LOG;
-        }
-        break;
-      case LOG:
-        level = std::log(pcm) / PCM_MAX_LOG;
-        break;
-      default:
-        //make level creep upwards slowly and then reset, as a visual
-        //warning that something's wrong with the code (i.e. i added a new
-        //processing method and forgot to stick it here)
-        level += 0.01;
-        if(level >= 1.0) { level = 0.0; }
+      //last-second check to see what form we want
+      if(proc_method == RMS) {
+          level /= 32767.0;
+      }
+      else if(proc_method == RMSLOG) {
+        level = std::log(level) / PCM_MAX_LOG;
+      }
+      break;
+    case LOG:
+      level = std::log(pcm) / PCM_MAX_LOG;
+      break;
+    default:
+      //make level creep upwards slowly and then reset, as a visual
+      //warning that something's wrong with the code (i.e. i added a new
+      //processing method and forgot to stick it here)
+      level += 0.01;
+      if(level >= 1.0) { level = 0.0; }
     }
   }
+
+  delete[] buf;
 }

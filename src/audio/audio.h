@@ -2,15 +2,17 @@
 #define AUDIO_H_
 
 #include <vector>
-#include <string>
-#include <utility>
+#include <SDL3/SDL.h>
 
-//the "audio" class will be responsible for the audio handling; specifically,
-//it's responsible for the microphone input handling and processing. 
-//
-//many of the hardware-related values are hard-coded here, such as the sample
-//rate, frequency of buffer writes, root mean square interval window, and 
-//a number of others.
+/*
+second attempt at audio class, post-migration to SDL3. this one will be
+much lighter-weight, and will NOT be asynchronous; it will instead update
+via an explicit function call.
+
+sdl3 uses input buffers that must be manually called upon when trying to
+get data from them. this saves me the hassle of dealing with callbacks but
+also means i have to be more careful about the data i manage
+*/
 
 class audio {
 public:
@@ -23,23 +25,13 @@ public:
   //  off extreme volume levels
   enum audio_proc { RAW, SQRT, RMS, LOG, RMSLOG };
 
-  //TODO: delete this later, probably
-  audio();
-  //allows user to specify most of the settings right off the bat:
-  //- hardware id of input device to use
-  //- sample frequency
-  //- sample count
-  //- channels
-  //- samples per callback
-  //- audio processing method
-  audio(int, int, int, int, int, audio_proc);
-  audio(const audio &) = delete;
-  audio &operator=(const audio &) = delete;
+  //TODO: expand later
+  //this time around, i'm foregoing the ability of the user to control anything
+  //about the initialization. it gets the default input at a fixed 44100hz and
+  //converts it to SDL_AUDIO_F32LE format; all the user controls is the audio
+  //level method.
+  audio(audio_proc);
   ~audio();
-
-  //when given an id, attempts to initialize the device corresponding to that
-  //id, and open it for audio streaming.
-  bool init_device(int id);
 
   //returns true if device is opened and ready to stream
   bool is_init() { return is_initialized; }
@@ -52,40 +44,20 @@ public:
   audio_proc get_proc() const { return proc_method; }
   void set_proc(audio_proc p) { proc_method = p; }
 
-  //---- static stuff ---------------------------------------------------------
-  //the following methods are usable from outside a specific member. this
-  //is mostly done bcause these don't really need to be bound to an instance
-  //of a class; the instance can pass in a processing method and a reference
-  //to get the level back out when all's said and done.
-
-  //populates an empty vector of pairs with a set of pairs, which contain
-  //the id and associated name of an audio input device.
-  static void get_devices(std::vector<std::pair<int, std::string>> &);
-
-  //the callback used for audio streaming.
-  static void static_stream_callback(void *, uint8_t *, int);
-
+  //query the stream to see if there's enough data. if there isn't, perform
+  //no action and just wait for the next call.
+  void update();
+ 
 private:
-
   bool is_initialized;
 
-  int hardware_id;
-  int device_id;
-  int sample_freq; //samples per second. default is 44100hz, but it can be cut
-  int sample_count; //samples before a callback. smaller = more responsive
-  int channels; //audio input channels. defaults to 1
+  SDL_AudioStream *stream;  //SDL3 - the logical stream that hooks into the
+                            //hardware and abstracts the messiness away. nice.
 
   audio_proc proc_method;
-  int rms_interval; //root mean square sample interval, in ms (300 by default)
+  int rms_interval;   //root mean square sample interval, in ms (default 300)
   int rms_max;
   std::vector<float> rms_arr;
-
-  //uses already-set member data and attempts to init the audio device.
-  //check whether the device is initialized after calling this via is_init()
-  void init_audio();
-
-  void stream_callback(uint8_t *, int);
-
 
   //various audio processing methods:
   //- RAW sends back raw audio data
@@ -97,9 +69,13 @@ private:
   //- LOG sends back log of raw audio data
   //  - values: 0-5
 
+  float min_buffer_time;  //amount of audio needed, in seconds, to perform an
+                          //update. 1/24 of a second by default.
+
   //the actual audio level, on a scale of 0.0 to 1.0, as reported by the 
-  //chosen audio processing method
+  //chosen audio processing method. updated each time the buffer has new data.
   float level;
+
 };
 
 #endif

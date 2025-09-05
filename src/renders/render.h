@@ -1,8 +1,9 @@
 #ifndef RENDER_H_
 #define RENDER_H_
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL_video.h>
 
 //as a test for myself, i am going to deviate from qdbp's architecture and go
 //out of my way to avoid singletons. to render an image, i'm going to
