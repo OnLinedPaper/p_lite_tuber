@@ -1,0 +1,107 @@
+TODO: 
+[x] get basic image rendering
+  [x] get window open
+  [x] get a surface on the screen
+  [x] switch to renderer/texture architecture
+  [x] tidy up file structure (image)
+[x] get event loop and buttons working (no keys this time)
+  [x] get engine spinning
+  [x] lock it to 24 cycles per second for now
+  [x] tidy up file structure (engine)
+[ ] implement UI and settings directly in program
+  [ ] track mouse cursor
+  [ ] add some buttons that change color when clicked
+  [ ] hide stuff if the mouse isn't moving or if the window is unfocused
+[x] get transparency working through obs 
+  [x] window capture + chroma key filter
+[x] get audio working
+  [x] grab available microphones
+  [x] learn to turn a microphone on and off
+  [x] measure mic levels, learn if/how it interacts with capped framerate
+  [x] see if i can pare it down from 44100hz to something MUCH lower
+  [x] make flame bounce with audio levels
+[ ] get dolls working
+  [x] draw some sprites first, god.
+    [x] head/body
+    [ ] eyes (blink)
+    [x] mouth (open/close)
+  [x] move to separate class
+  [x] scale correctly
+    [x] relative position for limbs
+  [ ] "action" framework
+    [x] sinefloat
+    [x] bounce
+    [ ] scale
+    [ ] movement?
+    [x] opacity? 
+  [x] sync to audio
+    [x] bounce when i talk
+    [x] switch images when i talk (mouth)
+  [ ] art pass 
+    [ ] blinking
+    [x] color 
+    [ ] 3-frame animation instead of static images
+    [x] sway
+[ ] cool things!
+  [ ] track mouse cursor and move doll with it
+  [ ] switch to different image on alt tab (book -> phone)
+    [x] x11 test program for window title
+    [x] screen watch handler
+    [ ] disable the whole thing at the preprocessor level if i dont want it
+
+misc/future:
+- import the xml parser from qdbp?
+- load up images from a file browser/gui
+- convenient user settings
+- movement
+- change image based on audio levels
+- debugging logger?
+- try/catch stuff?
+- load dolls dynamically / reload at runtime
+- layer flames with an outline on a lower background to make them "emerge" from the mane
+
+thoughts on window tracking - should be possible with x11, which is what sdl already uses. might fuck compatibility, might not? but either way it looks properly fucking complicated
+
+thoughts on "actions" - classes of their own that modify a dollpart in some way and are handled in, let's say... an update function of some sort?
+these actions will accept input and return output, and they'll all inherit from one base class. HOW they'll return their output remains to be seen... maybe i'll use some sorta void pointer to achieve polymorphism here since returning x,y coordinates could be a real pain otherwise
+actions will also be able to destroy themselves - some will be permanent and will constantly affect the dollpart but some will also be temporary, such as making a dollpart move, or slowly become smaller until it vanishes
+opacity is a possibility, but not one i think can easily be handled right off the bat, so i'll look into that later- but if a dollpart opacity is 0, it'll skip its draw phase (which means "update" needs to be placed somewhere else)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MUST call Pa_Terminate or risk losing access to audio devices until reboot. potential leaks outside of code are to be expected if i fail to do this.
+
+Pa_GetDeviceCount() to get count of available devices. may be paired with Pa_GetDefaultInputDevice() to, as the name implies, get default input device. might not be what i need though - figure out how to select an input device.
+
+learn about what PaSampleFormat is, what channels are, what interleaving is, and how to measure the audio levels from this.
+
+review PaDeviceInfo for ways to determine devices, which would probably make them easier to select. probably retrieved with Pa_GetDeviceInfo( device )
+
+consider stream parameter values, especially for acceptable latency
+
+can use Pa_isFormatSupported( params ) to determine if a format is supported, and get info about why if not.
+
+learn what PaStreamCallback is meant to do and how. it looks pretty important. probably related to Pa_OpenStream. 
+
+

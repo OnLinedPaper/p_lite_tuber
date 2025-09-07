@@ -6,7 +6,7 @@ audio::audio(audio_proc p) :
     is_initialized(false)
   , stream(nullptr)
   , proc_method(p)
-  , rms_interval(300)
+  , rms_interval(900) //TODO: remove magic numbers
   , rms_max(0)
   , min_buffer_time(1.0/24.0)
   , level(0)
@@ -57,7 +57,8 @@ void audio::update() {
 
   //TODO: figure out why the fuck this works. this stream doesn't appear to
   //do anything, but when i remove it, the other audio stream breaks and
-  //starts slowing down. i'm also 80% sure this is leaking memory.
+  //starts slowing down. i'm also 80% sure this is leaking memory, though it's
+  //a constant value, not something that'll crash eventually
   static SDL_AudioStream *pbk = SDL_OpenAudioDeviceStream(
       SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK
     , &spec

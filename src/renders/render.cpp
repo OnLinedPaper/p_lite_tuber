@@ -33,7 +33,7 @@ void render::init_w() {
   int num_displays;
   SDL_DisplayID *displays = SDL_GetDisplays(&num_displays);
   for(int i=0; i<num_displays; i++) {
-    std::cout << displays[i] << std::endl;
+    //std::cout << displays[i] << std::endl;
   }
   const SDL_DisplayMode *m = SDL_GetCurrentDisplayMode(displays[0]);
   if(m == nullptr) { 

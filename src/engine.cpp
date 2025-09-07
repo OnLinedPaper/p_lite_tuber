@@ -55,7 +55,7 @@ void engine::play() {
 //  audio a_rmslog(
 //      0             //device id
 //    , 44100/50      //sampling frequency (per second)
-//    , 4096/512      //samples before a callback
+//    , 4096/513      //samples before a callback
 //    , 1             //1 input channel
 //    , 300           //300ms RMS audio interval
 //    /*,*/ audio::RMSLOG //use RMSLOG audio processing
@@ -69,8 +69,11 @@ void engine::play() {
   //let's see if we can get dolls working
   dollpart dp_torso("./resources/control/sona_tuber_draw_head_base.txt", &r);
   
+  //dp_torso.pin_to(-200,-1000,NULL);
+  
   dp_torso.pin_to(500, 90, NULL);
   dp_torso.set_scale(720.0/2800.0);
+  
   //how about an action?
   
   //wobble constantly back and forth
@@ -78,16 +81,18 @@ void engine::play() {
   dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.008, act_sinefloat::SFTYPE_SF));
 
   //bounce once when starting to speak
-  dp_torso.add_action(new act_sinefloat(0.0048, action::UP_PULSE, action::AXIS_Y, -200.0, 0.1, act_sinefloat::SFTYPE_BN));
+  //dp_torso.add_action(new act_sinefloat(0.0048, action::UP_PULSE, action::AXIS_Y, -200.0, 0.1, act_sinefloat::SFTYPE_BN));
   //bounce continuously while speaking
   //TODO: replace this with an opacity change: mouth open/closed
   dp_torso.add_action(new act_sinefloat(0.0048, action::UP_CONST, action::AXIS_Y, 20.0, 0.3, act_sinefloat::SFTYPE_SF));
 
   dollpart dp_mouth_closed("./resources/control/sona_tuber_draw_head_mouth_closed.txt", &r);
-  dp_mouth_closed.pin_to(363, 1107, &dp_torso);
+  dp_mouth_closed.pin_to(362, 1117, &dp_torso);
+  dp_mouth_closed.add_action(new act_hide(0.0048, action::UP_CONST));
 
   dollpart dp_mouth_open("./resources/control/sona_tuber_draw_head_mouth_open.txt", &r);
-  dp_mouth_open.pin_to(369, 1323, &dp_torso);
+  dp_mouth_open.pin_to(353, 1119, &dp_torso);
+  dp_mouth_open.add_action(new act_hide(0.0048, action::DN_CONST));
 
   dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
   dp_penhand.pin_to(295, 1795, &dp_torso);
@@ -152,7 +157,7 @@ void engine::play() {
     dp_bookhand.update();
 
     dp_torso.draw();
-    //dp_mouth_closed.draw();
+    dp_mouth_closed.draw();
     dp_mouth_open.draw();
     dp_penhand.draw();
     dp_bookhand.draw();

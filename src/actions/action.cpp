@@ -34,6 +34,7 @@ act_sinefloat::act_sinefloat(
 { }
 
 void act_sinefloat::update(float input) {
+  //TODO: determine if this can be shipped to action::update()
   bool should_update = false;
   switch(trigger_flags) {
     case UP_CONST:
@@ -43,13 +44,13 @@ void act_sinefloat::update(float input) {
       if(input < threshold) { should_update = true; }
       break;
     case UP_PULSE:
-      if(!is_pulse && input >= threshold && last_input < threshold) { 
+      if(!is_pulse && input >= threshold && last_input <  threshold) { 
         is_pulse = true;
         should_update = true; 
       }
       break;
     case DN_PULSE:
-      if(!is_pulse && input < threshold && last_input >= threshold) {
+      if(!is_pulse && input <  threshold && last_input >= threshold) {
         is_pulse = true;
         should_update = true;
       }
@@ -63,11 +64,10 @@ void act_sinefloat::update(float input) {
 
   if(!should_update) { return; }  
 
- //now for the tricky part. if it's pulsing, it's meant to return after the
+  //now for the tricky part. if it's pulsing, it's meant to return after the
   //waveform returns to 0 (or crosses over it).
   //accomplish this by getting the current output, ticking the clock, and then
   //re-getting the output to see if the sign flipped. (0 is positive)
-  //UPDATE: fabs fucks with this since it'll always be the same sign, damn.
   bool pre_tick = pulse_sign;
 
   //tick the clock
@@ -103,4 +103,45 @@ float act_sinefloat::get_output() {
 
   ret *= deflect;
   return ret;
+}
+
+act_hide::act_hide(
+    float thresh
+  , uint32_t t_flags
+) :
+    action(thresh, t_flags, action::TYPE_HD)
+  , is_hidden(false)
+{ }
+
+void act_hide::update(float input) {
+  switch(trigger_flags) {
+    case UP_CONST:
+      //hide when above threshold
+      is_hidden = (input >= threshold ? true : false);
+      break;
+    case DN_CONST:
+      //hide when below threshold
+      is_hidden = (input <  threshold ? true : false);
+      break;
+    case UP_PULSE:
+      //always hide, unless threshold crossed up
+      if(is_pulse) { is_hidden = true; is_pulse = false; }
+      else if(input >= threshold && last_input <  threshold) {
+        is_hidden = false;
+        is_pulse = true;
+      }
+      break;
+    case DN_PULSE:
+      //always hide, unless threshold crossed down
+      if(is_pulse) { is_hidden = true; is_pulse = false; }
+      else if(input <  threshold && last_input >= threshold) {
+        is_hidden = false;
+        is_pulse = true;
+      }
+      break;
+  }
+}
+
+float act_hide::get_output() {
+  return (is_hidden ? 1 : 0);
 }

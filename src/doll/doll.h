@@ -110,6 +110,8 @@ private:
   float scale;  //scale at which dollpart is drawn and pins are adjusted
   image i;      //image to draw
 
+  bool hidden;  //whether to draw this part or not
+
   //TODO: decide whether or not this is a horrible idea. child dollparts
   //holding null references could really screw things up...
   const dollpart *parent;

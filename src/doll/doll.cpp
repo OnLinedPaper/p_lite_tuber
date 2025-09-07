@@ -7,6 +7,7 @@ dollpart::dollpart(std::string image_path, render *r) :
   , pin_y(0)
   , scale(1.0)
   , i(image_path, r)
+  , hidden(false)
   , parent(NULL)
   //, actions //inits itself empty
 { }
@@ -71,7 +72,7 @@ void dollpart::update(float input) {
   //now handle the actions
   for(action *a : actions) {
     switch (a->get_type()) {
-      case action::TYPE_SF:
+      case action::TYPE_SF: {
         //sinefloat
         float sf_data = ((act_sinefloat *)a)->get_output();
         switch (((act_sinefloat *)a)->get_axis()) {
@@ -84,12 +85,21 @@ void dollpart::update(float input) {
             break;
         }
         break;
+      }
+      case action::TYPE_HD: {
+        //hide
+        float hide = ((act_hide *)a)->get_output();
+        if(hide == 0) { hidden = false; }
+        else { hidden = true; }
+        break;
+      }
     }
   }
 //std::cout << pin_x << ", " << pin_y << " | " << draw_x << ", " << draw_y << std::endl;
 }
 
 void dollpart::draw() {
+  if(hidden) { return; }
  
   i.draw(draw_x, draw_y, scale);
 }

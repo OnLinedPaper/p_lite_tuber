@@ -40,20 +40,27 @@ derived actions are what actually manipulate a dollpart. these actions are:
   replicates a "bounce" behavior
   - const behavior: floats back and forth
   - pulse behavior: completes half a cycle, stopping when it reaches "0"
+- "TYPE_HD" - "hide" - returns true or false, if a dollpart should be hidden 
+  or visible, respectively. 
+  - const behavior: returns 1 (hide) when the condition is met, and 
+    0 (don't hide) otherwise
+  - pulse behavior: returns 1 (hide) for a single update cycle when the
+    condition is met, and 0 (don't hide) in all other circumstances.
 */
 
 class action {
 public:
-  //threshold type bitflags
+  //threshold type flags
   static const uint32_t UP_CONST = 0;
   static const uint32_t UP_PULSE = 1;
   static const uint32_t DN_CONST = 2;
   static const uint32_t DN_PULSE = 3;
 
-  //action type bitflags
+  //action type flags
   static const uint32_t TYPE_SF = 1;
+  static const uint32_t TYPE_HD = 2;
 
-  //axis bitflags
+  //axis flags
   static const uint32_t AXIS_X = 0;
   static const uint32_t AXIS_Y = 1;
 
@@ -83,7 +90,7 @@ protected:
 };
 
 //TODO: internally, sinefloat and bounce are identical, differing only in
-//their putput value (which gets put through abs() before return)
+//their output value (which gets put through abs() before return)
 class act_sinefloat : public action {
 public:
   static const uint32_t FUNC_SIN = 0;
@@ -120,6 +127,7 @@ private:
 
 class act_bounce : public action {
 public:
+  act_bounce() = delete;
   act_bounce(
       float threshold
     , uint32_t trigger_flags
@@ -130,6 +138,20 @@ public:
   ~act_bounce();
   void update(float input);
 
+};
+
+class act_hide : public action {
+public:
+  act_hide() = delete;
+  act_hide(
+      float threshold
+    , uint32_t trigger_flags
+  );
+  ~act_hide() = default;
+  void update(float input);
+  float get_output();
+private:
+  bool is_hidden;
 };
 
 #endif

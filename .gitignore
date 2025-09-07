@@ -4,7 +4,6 @@ bin
 build
 debugging
 resources/*
-todo.txt
 old
 
 #vim stuff
