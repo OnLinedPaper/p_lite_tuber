@@ -66,6 +66,8 @@ void engine::play() {
     return; 
   }
 
+  float vocal_threshold = 0.0049;
+
   //let's see if we can get dolls working
   dollpart dp_torso("./resources/control/sona_tuber_draw_head_base.txt", &r);
   
@@ -81,18 +83,18 @@ void engine::play() {
   dp_torso.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.008, act_sinefloat::SFTYPE_SF));
 
   //bounce once when starting to speak
-  //dp_torso.add_action(new act_sinefloat(0.0048, action::UP_PULSE, action::AXIS_Y, -200.0, 0.1, act_sinefloat::SFTYPE_BN));
+  //dp_torso.add_action(new act_sinefloat(vocal_threshold, action::UP_PULSE, action::AXIS_Y, -200.0, 0.1, act_sinefloat::SFTYPE_BN));
   //bounce continuously while speaking
   //TODO: replace this with an opacity change: mouth open/closed
-  dp_torso.add_action(new act_sinefloat(0.0048, action::UP_CONST, action::AXIS_Y, 20.0, 0.3, act_sinefloat::SFTYPE_SF));
+  dp_torso.add_action(new act_sinefloat(vocal_threshold, action::UP_CONST, action::AXIS_Y, 20.0, 0.3, act_sinefloat::SFTYPE_SF));
 
   dollpart dp_mouth_closed("./resources/control/sona_tuber_draw_head_mouth_closed.txt", &r);
   dp_mouth_closed.pin_to(362, 1117, &dp_torso);
-  dp_mouth_closed.add_action(new act_hide(0.0048, action::UP_CONST));
+  dp_mouth_closed.add_action(new act_hide(vocal_threshold, action::UP_CONST));
 
   dollpart dp_mouth_open("./resources/control/sona_tuber_draw_head_mouth_open.txt", &r);
   dp_mouth_open.pin_to(353, 1119, &dp_torso);
-  dp_mouth_open.add_action(new act_hide(0.0048, action::DN_CONST));
+  dp_mouth_open.add_action(new act_hide(vocal_threshold, action::DN_CONST));
 
   dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
   dp_penhand.pin_to(295, 1795, &dp_torso);
@@ -108,6 +110,13 @@ void engine::play() {
   //follow the pen at 1/10 speed
   dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, 3.25, 0.084, act_sinefloat::SFTYPE_SF));
   dp_bookhand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 5.38, 0.056, act_sinefloat::SFTYPE_SF));
+
+
+  //TODO: animate this later
+  dollpart dp_phonehand("./resources/control/sona_tuber_draw_phonehand.txt", &r);
+  dp_phonehand.pin_to(-95, 1635, &dp_torso);
+  //TODO: un-dummy this and link it to a screenwatcher later
+  dp_phonehand.add_action(new act_hide(0.00, action::UP_CONST));
 
 
   //now let's try to get the screenwatcher running
@@ -155,12 +164,14 @@ void engine::play() {
     dp_mouth_open.update(a_rms.get_level());
     dp_penhand.update();
     dp_bookhand.update();
+    dp_phonehand.update();
 
     dp_torso.draw();
     dp_mouth_closed.draw();
     dp_mouth_open.draw();
     dp_penhand.draw();
     dp_bookhand.draw();
+    dp_phonehand.draw();
 
     //show the focused window (it works!)
     std::string sw_out = "";

@@ -47,6 +47,7 @@ screenwatch::~screenwatch() {
 void screenwatch::get_screen_title(std::string *s) {
   //dummy variables
   unsigned int child_count = 0;
+  //Window *child_windows;
   Window *child_windows;
   int f_return = 0;
 
@@ -107,10 +108,17 @@ void screenwatch::get_screen_title(std::string *s) {
 
     //now, jump up one window to the parent and do it again
     XQueryTree(d, f_window, &r_w_r, &p_w_r, &child_windows, &child_count);
-    f_window = p_w_r;
+    if(f_window == p_w_r) {
+      //this window somehow was its own parent. hell if i know how this is
+      //possible, but cut it off here.
+      f_window = r_w_r;
+    } else {
+      f_window = p_w_r;
+    }
 
     //free the used memory
     XFree(t.value);
-    XFree(child_windows);
+
+    if(child_count != 0) { XFree(child_windows); }
   }
 }

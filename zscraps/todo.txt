@@ -24,6 +24,9 @@ TODO:
   [x] draw some sprites first, god.
     [x] head/body
     [ ] eyes (blink)
+      [ ] decide whether i want to tie this to random event or fixed interval
+      [ ] note: eyes draw under mouth (mouth controls freckles)
+      [ ] TODO: do i want to remove color and let just freckle dots remain...?
     [x] mouth (open/close)
   [x] move to separate class
   [x] scale correctly
@@ -59,6 +62,7 @@ misc/future:
 - try/catch stuff?
 - load dolls dynamically / reload at runtime
 - layer flames with an outline on a lower background to make them "emerge" from the mane
+- figure out why screenwatch core dumps when i save-as a file in krita
 
 thoughts on window tracking - should be possible with x11, which is what sdl already uses. might fuck compatibility, might not? but either way it looks properly fucking complicated
 
