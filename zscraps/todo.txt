@@ -23,10 +23,10 @@ TODO:
 [ ] get dolls working
   [x] draw some sprites first, god.
     [x] head/body
-    [ ] eyes (blink)
-      [ ] decide whether i want to tie this to random event or fixed interval
-      [ ] note: eyes draw under mouth (mouth controls freckles)
-      [ ] TODO: do i want to remove color and let just freckle dots remain...?
+    [x] eyes (blink)
+      [x] decide whether i want to tie this to random event or fixed interval (random)
+      [x] note: eyes draw under mouth (mouth controls freckles)
+      [x] TODO: do i want to remove color and let just freckle dots remain...?
     [x] mouth (open/close)
   [x] move to separate class
   [x] scale correctly
@@ -41,7 +41,7 @@ TODO:
     [x] bounce when i talk
     [x] switch images when i talk (mouth)
   [ ] art pass 
-    [ ] blinking
+    [x] blinking
     [x] color 
     [ ] 3-frame animation instead of static images
     [x] sway
@@ -50,6 +50,7 @@ TODO:
   [ ] switch to different image on alt tab (book -> phone)
     [x] x11 test program for window title
     [x] screen watch handler
+    [x] actions that can respond to focused screen based on title list
     [ ] disable the whole thing at the preprocessor level if i dont want it
 
 misc/future:
@@ -62,7 +63,7 @@ misc/future:
 - try/catch stuff?
 - load dolls dynamically / reload at runtime
 - layer flames with an outline on a lower background to make them "emerge" from the mane
-- figure out why screenwatch core dumps when i save-as a file in krita
+- move blinking logic into separate class for random counters
 
 thoughts on window tracking - should be possible with x11, which is what sdl already uses. might fuck compatibility, might not? but either way it looks properly fucking complicated
 

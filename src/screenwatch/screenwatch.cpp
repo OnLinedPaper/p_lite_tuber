@@ -122,3 +122,17 @@ void screenwatch::get_screen_title(std::string *s) {
     if(child_count != 0) { XFree(child_windows); }
   }
 }
+
+float screenwatch::check_titles(std::vector<std::string> &titles) {
+  //get current window's title
+  std::string focused_title = "";
+  this->get_screen_title(&focused_title);
+
+  //check for a match
+  for(std::string title : titles) {
+    //std::cout << focused_title << " | " << title << std::endl;
+    if(focused_title.find(title) != std::string::npos) { return 1.0; }
+  }
+
+  return 0.0;
+}
