@@ -17,6 +17,8 @@ private:
   bool init();
   bool is_init;
   void print_debug_swirly() const;
+  double last_tick;
+
 
   //timekeeping things - last_tick tracks the last logic tick and tick_wait()
   //calculates how long until the next tick.
@@ -28,9 +30,9 @@ private:
   //either way, last_tick gets updated with the last tick.
   //TODO: maybe skip frames for optimization? who knows?
   const int TPS = 24;
-  const double T_DELAY = 1000/TPS;
+  const double T_DELAY = 1000.0/(double)TPS;
   double tick_wait();
-
+  void tick_set();
   render r;
 };
 

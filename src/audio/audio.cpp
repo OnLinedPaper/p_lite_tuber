@@ -6,9 +6,9 @@ audio::audio(audio_proc p) :
     is_initialized(false)
   , stream(nullptr)
   , proc_method(p)
-  , rms_interval(900) //TODO: remove magic numbers
+  , rms_interval(200) //TODO: remove magic numbers
   , rms_max(0)
-  , min_buffer_time(1.0/24.0)
+  , min_buffer_time(1.0/24.0 * 3.0)
   , level(0)
 { 
   //create a standardized audio spec and use it to open the default recording
@@ -55,6 +55,7 @@ void audio::update() {
   SDL_AudioSpec spec;
   SDL_GetAudioStreamFormat(stream, &spec, NULL);
 
+  //TODO: get audio to resync... again. fuck.
   //TODO: figure out why the fuck this works. this stream doesn't appear to
   //do anything, but when i remove it, the other audio stream breaks and
   //starts slowing down. i'm also 80% sure this is leaking memory, though it's

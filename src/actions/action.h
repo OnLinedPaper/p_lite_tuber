@@ -2,6 +2,7 @@
 #define ACTION_H_
 
 #include <cstdint>
+#include <vector>
 
 /*
 "actions" are ways a dollpart can be modified, manipulated, or otherwise
@@ -27,6 +28,11 @@ parts of an action are:
                 threshold
   - "DN_PULSE": triggers the action once when the input crosses below the
                 threshold; will not retrigger until action is "complete"
+- note that the "pulse" action type is a rising/falling-edge trigger. if the
+  input crosses the threshold for even a single frame, it'll run to
+  completion; likewise, if the input is still over the threshold after the
+  pulse is finished, it must return from and then re-cross the threshold 
+  again to reactivate.
 - "active" - whether this action has potential to influence the dollpart in
   the future. for effects that "destroy" a part (i.e. shrink-till-vanish),
   this is how the dollpart knows the action is "done" and can be removed from
@@ -46,6 +52,33 @@ derived actions are what actually manipulate a dollpart. these actions are:
     0 (don't hide) otherwise
   - pulse behavior: returns 1 (hide) for a single update cycle when the
     condition is met, and 0 (don't hide) in all other circumstances.
+- "TYPE_MV" - "move" - repositions a dollpart. movement scales with dollpart
+  scale, but this isn't handled by the action, it's handled by the dollpart.
+  movement occurs only on one axis (X or Y) but, like sinefloats, two
+  movements can be combined on the axes to move in any direction.
+  movement has a source and a destination; both are provided when the action
+  is created. the output represents an offset from the source towards the
+  destination. note that if the dollpart is moving, the destination will also
+  be moving relative to the part's movement.
+  in addition to a source and destination, a "time" is also provided,
+  which represents how many ticks the movement takes from start to
+  finish. the program runs at 24 tps, so a "time" of 24 will finish its
+  movement in 1 second.
+  movements use bezier curves to dictate movement speed. the source and
+  destination represent the first and last control points; a vector of
+  arbitrarily many additional control points may be included. if no additional
+  contol points are provided, the movement uses constant velocity to reach its
+  destination.
+  TODO: decide if the below is sane.
+  when movement reaches its destination, it can do one of three things: reset
+  to the start, reverse direction, or nothing at all (this option makes the 
+  action "single use"). note that "going backwards" performs the exact same
+  motion in reverse, i.e. accelerating at the "start" will cause it to 
+  decelerate as it approaches the "start" again on the return trip.
+  - const behavior: advances towards the destination when the threshold is 
+    met; stops advancing when the threshold is not met.
+  - pulse behavior: advances toward the destination without interruption when
+    the threshold pulses, and stops when it arrives.
 */
 
 class action {
@@ -59,6 +92,7 @@ public:
   //action type flags
   static const uint32_t TYPE_SF = 1;
   static const uint32_t TYPE_HD = 2;
+  static const uint32_t TYPE_MV = 3;
 
   //axis flags
   static const uint32_t AXIS_X = 0;
@@ -89,8 +123,6 @@ protected:
   bool is_pulse;
 };
 
-//TODO: internally, sinefloat and bounce are identical, differing only in
-//their output value (which gets put through abs() before return)
 class act_sinefloat : public action {
 public:
   static const uint32_t FUNC_SIN = 0;
@@ -125,21 +157,6 @@ private:
 };
 
 
-class act_bounce : public action {
-public:
-  act_bounce() = delete;
-  act_bounce(
-      float threshold
-    , uint32_t trigger_flags
-    , int axis
-    , float deflect
-    , float speed
-  );
-  ~act_bounce();
-  void update(float input);
-
-};
-
 class act_hide : public action {
 public:
   act_hide() = delete;
@@ -152,6 +169,42 @@ public:
   float get_output();
 private:
   bool is_hidden;
+};
+
+
+class act_move : public action {
+public: 
+  static const uint32_t MVTYPE_ST = 0; //stop
+  static const uint32_t MVTYPE_RP = 1; //repeat
+  static const uint32_t MVTYPE_RV = 2; //reverse
+
+  act_move() = delete;
+  act_move(
+      uint32_t axis
+    , int src
+    , int dst
+    , std::vector<int>
+    , int time
+    , uint32_t mv_type
+    , float threshold
+    , uint32_t trigger_flags
+  );
+  ~act_move() = default;
+  void update(float input);
+  float get_output();
+  uint32_t get_axis() { return axis; }
+private:
+  //input values
+  const uint32_t axis;
+  const int src;
+  const int dst;
+  const std::vector<int> c_points;
+  const int travel_time;
+  uint32_t mv_type;
+
+  bool reverse;
+  int pos;
+  int elapsed_ticks;
 };
 
 #endif

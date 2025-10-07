@@ -93,6 +93,19 @@ void dollpart::update(float input) {
         else { hidden = true; }
         break;
       }
+      case action::TYPE_MV: {
+        //move
+        float mv_data = ((act_move *)a)->get_output();
+        switch(((act_move *)a)->get_axis()) {
+          case action::AXIS_X:
+            draw_x += mv_data * scale;
+            break;
+          case action::AXIS_Y:
+            draw_y += mv_data * scale;
+            break;
+        }
+        break;
+      }
     }
   }
 //std::cout << pin_x << ", " << pin_y << " | " << draw_x << ", " << draw_y << std::endl;

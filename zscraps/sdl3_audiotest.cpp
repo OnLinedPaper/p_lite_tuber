@@ -5,16 +5,15 @@
 #include <SDL3/SDL_audio.h>
 #include <cmath>
 #include <chrono>
+double last_tick = 0;
 
 double tick_wait() {
   //first, get the current tick
-  static double last_tick = 0;
   double curr_tick = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::system_clock::now().time_since_epoch()
   ).count();
 
   double elapsed = curr_tick - last_tick;
-  last_tick = curr_tick;
 
   double wait = 1000.0/24.0;
   return std::max(0.0, wait - elapsed);
@@ -106,8 +105,8 @@ int main(void) {
   //TODO: format -> lower sample rate
   SDL_AudioSpec spec { SDL_AUDIO_F32LE, 1, 44100 };
   //SDL_AudioStream *rec = SDL_OpenAudioDeviceStream(devices[0], &spec, stream_callback, NULL);
-  SDL_AudioStream *rec = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, NULL, NULL);
-  //SDL_AudioStream *rec = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, NULL, NULL, NULL);
+  //SDL_AudioStream *rec = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, NULL, NULL);
+  SDL_AudioStream *rec = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, NULL, NULL, NULL);
   if(!rec) {
     std::cerr << "S_H_I_T! couldnt link input stream" << std::endl;
     return -1;
@@ -115,8 +114,8 @@ int main(void) {
 
   //what format is this in...?
   SDL_GetAudioStreamFormat(rec, &spec, NULL);
-  //std::cout << std::hex << spec.format << std::endl;
-  //std::cout << (spec.format == SDL_AUDIO_S16LE) << std::endl;
+  std::cout << std::hex << spec.format << std::dec << std::endl;
+  std::cout << (spec.format == SDL_AUDIO_S16LE) << std::endl;
 
   //now, open a playback device
   SDL_AudioSpec spec2;
@@ -126,6 +125,9 @@ int main(void) {
     std::cerr << "S_H_I_T! couldnt link output stream" << std::endl;
     return -1;
   }
+  std::cout << std::hex << spec2.format << std::dec << std::endl;
+  std::cout << (spec2.format == SDL_AUDIO_S16LE) << std::endl;
+
   
   
 
@@ -164,7 +166,7 @@ int main(void) {
   //at the same 24-times-per-second speed as the rest of the code. let's see if it works...
 
   //take 3 - check audio levels
-  while(!quit) { 
+  while(!quit /*&& false*/) { 
     //event handling loop - get user inputs
     while(SDL_PollEvent(&e) != 0) {
       //check to see if the window was closed out
@@ -274,7 +276,7 @@ int main(void) {
       std::cout << SDL_GetAudioStreamAvailable(rec) << "[REC ]\r" << std::flush;
       SDL_AudioSpec spec_i;
       SDL_GetAudioStreamFormat(rec, &spec_i, NULL);
-      const int want_size = (SDL_AUDIO_FRAMESIZE(spec_i) * spec_i.freq) * cycle_time; //get 5 seconds
+      const int want_size = (SDL_AUDIO_FRAMESIZE(spec_i) * spec_i.freq) * cycle_time * 25; //get 5 seconds
       const int recorded_sofar = SDL_GetAudioStreamAvailable(rec); //how much it's accumulated so far
 
       if(recorded_sofar > want_size) {

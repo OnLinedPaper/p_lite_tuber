@@ -51,6 +51,7 @@ TODO:
     [x] x11 test program for window title
     [x] screen watch handler
     [x] actions that can respond to focused screen based on title list
+    [ ] "intro" animations, i.e. take pen from book, flip open phone
     [ ] disable the whole thing at the preprocessor level if i dont want it
 
 misc/future:
@@ -64,10 +65,13 @@ misc/future:
 - load dolls dynamically / reload at runtime
 - layer flames with an outline on a lower background to make them "emerge" from the mane
 - move blinking logic into separate class for random counters
+- outfit manager / wardrobe, with hotswapping rather than runtime reloading
 
-thoughts on window tracking - should be possible with x11, which is what sdl already uses. might fuck compatibility, might not? but either way it looks properly fucking complicated
 
-thoughts on "actions" - classes of their own that modify a dollpart in some way and are handled in, let's say... an update function of some sort?
+
+(done) thoughts on window tracking - should be possible with x11, which is what sdl already uses. might fuck compatibility, might not? but either way it looks properly fucking complicated
+
+(done) thoughts on "actions" - classes of their own that modify a dollpart in some way and are handled in, let's say... an update function of some sort?
 these actions will accept input and return output, and they'll all inherit from one base class. HOW they'll return their output remains to be seen... maybe i'll use some sorta void pointer to achieve polymorphism here since returning x,y coordinates could be a real pain otherwise
 actions will also be able to destroy themselves - some will be permanent and will constantly affect the dollpart but some will also be temporary, such as making a dollpart move, or slowly become smaller until it vanishes
 opacity is a possibility, but not one i think can easily be handled right off the bat, so i'll look into that later- but if a dollpart opacity is 0, it'll skip its draw phase (which means "update" needs to be placed somewhere else)

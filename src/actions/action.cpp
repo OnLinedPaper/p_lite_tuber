@@ -54,6 +54,7 @@ void act_sinefloat::update(float input) {
         is_pulse = true;
         should_update = true;
       }
+      break;
   }
 
   //always update during a pulse
@@ -140,8 +141,158 @@ void act_hide::update(float input) {
       }
       break;
   }
+
+  last_input = input;
 }
 
 float act_hide::get_output() {
   return (is_hidden ? 1 : 0);
+}
+
+
+act_move::act_move(
+    uint32_t a
+  , int s
+  , int d
+  , std::vector<int> c_p
+  , int t
+  , uint32_t m
+  , float thresh
+  , uint32_t t_flags
+) :
+    action(thresh, t_flags, action::TYPE_MV)
+  , axis(a)
+  , src(s)
+  , dst(d)
+  , c_points(c_p)
+  , travel_time(t)
+  , mv_type(m)
+  , reverse(false)
+  , pos(src)
+  , elapsed_ticks(0)
+{ }
+
+void act_move::update(float input) {
+  bool should_update = false;
+  switch(trigger_flags) {
+    case UP_CONST:
+      if(input >= threshold) { should_update = true; }
+      break;
+    case DN_CONST:
+      if(input < threshold) { should_update = true; }
+      break;
+    case UP_PULSE:
+      if(!is_pulse && input >= threshold && last_input <  threshold) { 
+        is_pulse = true;
+        should_update = true; 
+        elapsed_ticks = 0;
+      }
+      break;
+    case DN_PULSE:
+      if(!is_pulse && input <  threshold && last_input >= threshold) {
+        is_pulse = true;
+        should_update = true;
+        elapsed_ticks = 0;
+      }
+      break;
+  }
+
+  last_input = input;
+  //std::cout << should_update << " " << is_pulse << " " << threshold << " " << input << std::endl;
+  
+  //what to do when reaching the end of a pulse?
+  if(
+    (trigger_flags == UP_PULSE || trigger_flags == DN_PULSE) &&
+    (is_pulse && elapsed_ticks >= travel_time)
+  ) {
+    switch(mv_type) {
+      case MVTYPE_ST:
+        //stay in this exact position
+        is_pulse = false;
+        return;
+      case MVTYPE_RP:
+        //reset and keep pulsing
+        elapsed_ticks = 0;
+        break;
+      case MVTYPE_RV:
+        //stay, but next pulse, go backwards
+        reverse = !reverse;
+        is_pulse = false;
+        break;
+    }
+  }
+
+  //what to do when reaching the end of the constant?
+  if(
+    (trigger_flags == UP_CONST || trigger_flags == DN_CONST) &&
+    (elapsed_ticks >= travel_time) 
+  ) {
+    switch(mv_type) {
+      case MVTYPE_ST:
+        //stay in this exact position, BUT snap to 0 when threshold drops
+        if(!should_update) { elapsed_ticks = 0; pos=0; }
+        return;
+      case MVTYPE_RP:
+        //reset and keep moving
+        elapsed_ticks = 0;
+        break;
+      case MVTYPE_RV:
+        //reverse, reset, and keep moving
+        reverse = !reverse;
+        elapsed_ticks = 0;
+        break;
+    }
+  }
+
+  if(!(should_update || is_pulse)) {
+    elapsed_ticks = 0;
+    return;
+  }
+
+  //bezier curve logic. couple steps:
+  //- make a vector of all control points
+  //- while vector elements > 1, loop:
+  //  - get distance between points, scaled to ticks/travel_time
+  //  - write this to the first point, move to the next point pair
+  //  - knock the last point off the end of the vector
+
+  elapsed_ticks %= travel_time;
+  elapsed_ticks++;
+  float t_ratio = (float) elapsed_ticks / (float) travel_time;
+
+  std::vector<int> bezier;
+  if(!reverse) {
+    bezier.push_back(src);
+    for(int i : c_points) { bezier.push_back(i); }
+    bezier.push_back(dst);
+  }
+  else {
+    //push points in reverse
+    bezier.push_back(dst);
+    for(int i = c_points.size()-1; i>=0; i--) { 
+      bezier.push_back(c_points[i]); 
+    }
+    bezier.push_back(src);
+  }
+
+  while(bezier.size() > 1) {
+    //for(int i : bezier) { std::cout << i << " "; }
+    //std::cout << std::endl;
+
+    //go through the elements and get the points (math in-place)
+    for(unsigned int i=0; i<bezier.size() - 1; i++) {
+      bezier[i] = (bezier[i] * (1.0 - t_ratio) + bezier[i+1] * (t_ratio));
+    }
+    //pop the last element off
+    bezier.pop_back();
+  }
+
+  //now save this position
+  pos = bezier[0];
+}
+
+//unique in that instead of returning an input or output, returns an offset
+//value, to be added to the position of the given dollpart
+float act_move::get_output() {
+  return pos;
 }
