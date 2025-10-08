@@ -246,6 +246,7 @@ void act_move::update(float input) {
 
   if(!(should_update || is_pulse)) {
     elapsed_ticks = 0;
+    pos = 0;
     return;
   }
 
