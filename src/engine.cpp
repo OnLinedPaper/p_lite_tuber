@@ -11,6 +11,7 @@
 #include "src/doll/doll.h"
 #include "src/actions/action.h"
 #include "src/screenwatch/screenwatch.h"
+#include "src/events/event.h"
 
 //-----------------------------------------------
 
@@ -170,7 +171,7 @@ void engine::play() {
   //dp_phonehand.add_action(new act_hide(1.0, action::DN_CONST));
   
   //bring the phone up 
-  dp_phonehand.add_action(new act_move(action::AXIS_Y, 2400, 0, {2100, 200, -300}, 16, act_move::MVTYPE_ST, 1.0, action::UP_CONST));
+  dp_phonehand.add_action(new act_move(action::AXIS_Y, 2400, 0, {2100, 200, -300}, 16, act_move::MVTYPE_ST, 1.0, action::UP_CONST, event_v1::PHONE_UP));
   //hide it down
   dp_phonehand.add_action(new act_move(action::AXIS_Y, 0, 2400, {-300, 200, 2100}, 16, act_move::MVTYPE_ST, 0.9, action::DN_CONST));
 
@@ -225,6 +226,8 @@ void engine::play() {
   
   //   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   
 
+  bool phone_on = false;
+
   //main loop - everything that happens, happens in here
   while(!quit) {
 
@@ -261,10 +264,16 @@ void engine::play() {
     dp_bookhand.update(sw.check_titles(krita_titles));
     dp_phonehand.update(sw.check_titles(phone_titles));
     dp_xboxhand.update(sw.check_titles(videogame_titles));
-    dp_phone_base.update(sw.check_titles(phone_titles));
+
+    //little experiment here to see if i can get this working
+    phone_on = phone_on || event_v1::get().check_flag(event_v1::PHONE_UP);
+    phone_on = phone_on && sw.check_titles(phone_titles);
+    dp_phone_base.update((phone_on ? 1.0 : 0.0));
     dp_phone_bubble_base.update(sw.check_titles(phone_titles));
     dp_phone_bubble_discord.update(sw.check_titles(discord_titles));
     dp_phone_bubble_firefox.update(sw.check_titles(firefox_titles));
+
+    event_v1::get().update();
 
     dp_torso.draw();
     //dp_torso_bb.draw();

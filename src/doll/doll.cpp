@@ -112,7 +112,7 @@ void dollpart::update(float input) {
 }
 
 void dollpart::draw() {
-  if(hidden) { return; }
+  if(hidden || (parent != NULL && parent->hidden)) { return; }
  
   i.draw(draw_x, draw_y, scale);
 }

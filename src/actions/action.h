@@ -98,7 +98,12 @@ public:
   static const uint32_t AXIS_X = 0;
   static const uint32_t AXIS_Y = 1;
 
-  action(float threshold, uint32_t trigger_flags, uint32_t type);
+  action(
+      float threshold
+    , uint32_t trigger_flags
+    , uint32_t type
+    , int e_flags = 0
+  );
   action() = delete;
   action(const action &) = delete;
   action &operator=(const action &) = delete;
@@ -118,6 +123,7 @@ protected:
   uint32_t trigger_flags;
   uint32_t type;
   bool active;
+  int e_flags;
 
   float last_input;
   bool is_pulse;
@@ -139,6 +145,7 @@ public:
     , float speed
     , uint32_t sf_type
     , uint32_t func = FUNC_SIN
+    , int e_flags = 0
   );
   ~act_sinefloat() = default;
   void update(float input);
@@ -163,6 +170,7 @@ public:
   act_hide(
       float threshold
     , uint32_t trigger_flags
+    , int e_flags = 0
   );
   ~act_hide() = default;
   void update(float input);
@@ -188,6 +196,7 @@ public:
     , uint32_t mv_type
     , float threshold
     , uint32_t trigger_flags
+    , int e_flags = 0
   );
   ~act_move() = default;
   void update(float input);

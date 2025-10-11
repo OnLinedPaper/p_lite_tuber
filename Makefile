@@ -10,15 +10,15 @@ BDIR= build
 SDIR= src
 DBDIR= build/dbuild
 
-DEPS:= main.h engine.h render.h image.h audio.h doll.h action.h screenwatch.h
+DEPS:= main.h engine.h render.h image.h audio.h doll.h action.h screenwatch.h event.h
 
-OBJS:= action.o audio.o doll.o engine.o image.o main.o render.o screenwatch.o
+OBJS:= action.o audio.o doll.o engine.o event.o image.o main.o render.o screenwatch.o
 DOBJS:= $(addprefix $(DBDIR)/,$(OBJS))
 OBJS:= $(addprefix $(BDIR)/,$(OBJS))
 
-SRCS:= main.cpp engine.cpp render.cpp image.cpp audio.cpp doll.cpp action.cpp screenwatch.cpp
+SRCS:= main.cpp engine.cpp render.cpp image.cpp audio.cpp doll.cpp action.cpp screenwatch.cpp event.cpp
 
-PATHS:= . renders images audio doll actions screenwatch
+PATHS:= . renders images audio doll actions screenwatch events
 VPATH:= $(addprefix src/,$(PATHS))
 
 # copied more or less verbatim from qdbp's makefile

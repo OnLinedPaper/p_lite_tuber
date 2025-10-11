@@ -1,4 +1,5 @@
 #include "src/actions/action.h"
+#include "src/events/event.h"
 #include <cmath>
 #include <iostream>
 
@@ -6,11 +7,13 @@ action::action(
     float thresh
   , uint32_t t_flags
   , uint32_t t
+  , int e_f
 ) :
     threshold(thresh)
   , trigger_flags(t_flags)
   , type(t)
   , active(true)
+  , e_flags(e_f)
   , last_input(0)
   , is_pulse(false)
 { }
@@ -23,8 +26,9 @@ act_sinefloat::act_sinefloat(
   , float s
   , uint32_t sf_t
   , uint32_t func
+  , int e_f
 ) :
-    action(thresh, t_flags, action::TYPE_SF)
+    action(thresh, t_flags, action::TYPE_SF, e_f)
   , axis(a)
   , deflect(d)
   , speed(s)
@@ -109,8 +113,9 @@ float act_sinefloat::get_output() {
 act_hide::act_hide(
     float thresh
   , uint32_t t_flags
+  , int e_f
 ) :
-    action(thresh, t_flags, action::TYPE_HD)
+    action(thresh, t_flags, action::TYPE_HD, e_f)
   , is_hidden(false)
 { }
 
@@ -159,8 +164,9 @@ act_move::act_move(
   , uint32_t m
   , float thresh
   , uint32_t t_flags
+  , int e_f
 ) :
-    action(thresh, t_flags, action::TYPE_MV)
+    action(thresh, t_flags, action::TYPE_MV, e_f)
   , axis(a)
   , src(s)
   , dst(d)
@@ -209,6 +215,7 @@ void act_move::update(float input) {
       case MVTYPE_ST:
         //stay in this exact position
         is_pulse = false;
+        event_v1::get().queue_flag(e_flags);
         return;
       case MVTYPE_RP:
         //reset and keep pulsing
@@ -231,6 +238,7 @@ void act_move::update(float input) {
       case MVTYPE_ST:
         //stay in this exact position, BUT snap to 0 when threshold drops
         if(!should_update) { elapsed_ticks = 0; pos=0; }
+        event_v1::get().queue_flag(e_flags);
         return;
       case MVTYPE_RP:
         //reset and keep moving
