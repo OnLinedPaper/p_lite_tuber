@@ -133,11 +133,6 @@ void image::draw(int x, int y, float scale) const {
   //check to see if it's on the screen; don't draw it if it's not.
   //TODO: adjust check for rotating images later.
 
-  //TODO: determine how to use scale, if at all - likely will apply only to
-  //width and height, not to x and y (though this will make coding dollpart
-  //coordinates tough... hm. maybe make the doll use scale? worry about it
-  //later, scale for now. likely the doll will handle the coordinates and
-  //the image can deal with the scale.
   if(
       x > r->get_w() ||
       x + width * scale < 0 ||
@@ -150,6 +145,15 @@ void image::draw(int x, int y, float scale) const {
   dest_r.y = y;
   dest_r.w = width * scale;
   dest_r.h = height * scale;
+
+  //TODO: multi-frame stuff here.
+  //for multi-frame sprites, the entire sheet is loaded into a single 
+  //horizontal texture. calculate which portion to render based off of the
+  //frames and framerate.
+  //note: this is based on global tick clock. since images are shared between
+  //instances and may be drawn multiple times per update cycle, there's no way
+  //to make them update at consistent fps except with an outside frame of
+  //reference.
 
   //TODO: pivot here, later.
 

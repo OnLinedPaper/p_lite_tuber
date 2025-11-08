@@ -35,8 +35,8 @@ TODO:
     [x] sinefloat
     [x] bounce
     [ ] scale
-    [ ] movement?
-    [x] opacity? 
+    [x] movement
+    [x] opacity 
   [x] sync to audio
     [x] bounce when i talk
     [x] switch images when i talk (mouth)

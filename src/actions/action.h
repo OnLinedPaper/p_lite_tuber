@@ -208,12 +208,12 @@ private:
   const int src;
   const int dst;
   const std::vector<int> c_points;
-  const int travel_time;
+  const double travel_time;
   uint32_t mv_type;
 
   bool reverse;
   int pos;
-  int elapsed_ticks;
+  double elapsed_ticks;
 };
 
 #endif

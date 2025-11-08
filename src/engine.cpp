@@ -12,6 +12,7 @@
 #include "src/actions/action.h"
 #include "src/screenwatch/screenwatch.h"
 #include "src/events/event.h"
+#include "src/time/time.h"
 
 //-----------------------------------------------
 
@@ -20,6 +21,9 @@ void engine::play() {
   //don't run if not initialized - this will usually happen if an SDL
   //subsystem failed to init for any reason
   if(!is_init) { return; }
+
+  //test time
+  time::get();
 
   SDL_Event e;
   bool quit = false;
@@ -301,8 +305,8 @@ void engine::play() {
         std::cout << "krita!" << std::endl;
       }
       std::cout << std::setw(60) << std::left << sw_out << "            \r" << std::right << std::flush;
-      static int count = 0;
-      std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;
+      /*static int count = 0;
+      std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;*/
      }
 
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
@@ -316,14 +320,14 @@ void engine::play() {
     print_debug_swirly();
 
     //go to sleep for a bit
-    SDL_Delay(tick_wait());
+    SDL_Delay(time::get().get_wait());
     //now reset the timer
-    tick_set();
+    time::get().update();
   }
 
 }
 
-engine::engine() : is_init(true), last_tick(0) { 
+engine::engine() : is_init(true)/*, last_tick(0)*/ { 
   //as an exercise to myself, i am going to deviate from qdbp's design and
   //deliberately AVOID singletons everywhere i can. 
   //therefore, we'll init the vars here instead.
@@ -354,6 +358,7 @@ engine::engine() : is_init(true), last_tick(0) {
   r.init();
 }
 
+/*
 double engine::tick_wait() {
   //first, get the current tick
   double curr_tick = 
@@ -371,6 +376,7 @@ void engine::tick_set() {
     std::chrono::system_clock::now().time_since_epoch() /
     std::chrono::milliseconds(1);
 }
+*/
 
 void engine::print_debug_swirly() const {
   static int k = 0;

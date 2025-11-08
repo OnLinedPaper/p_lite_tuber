@@ -17,6 +17,7 @@ private:
   bool init();
   bool is_init;
   void print_debug_swirly() const;
+/*
   double last_tick;
 
 
@@ -33,6 +34,7 @@ private:
   const double T_DELAY = 1000.0/(double)TPS;
   double tick_wait();
   void tick_set();
+*/
   render r;
 };
 

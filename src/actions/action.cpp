@@ -2,6 +2,7 @@
 #include "src/events/event.h"
 #include <cmath>
 #include <iostream>
+#include "src/time/time.h"
 
 action::action(
     float thresh
@@ -90,10 +91,10 @@ float act_sinefloat::get_output() {
   float ret = 0;
   switch(which_func) {
     case FUNC_SIN:
-      ret = std::sin(clock * speed);
+      ret = std::sin(clock * speed * time::get().get_delta());
       break;
     case FUNC_COS:
-      ret = std::cos(clock * speed);
+      ret = std::cos(clock * speed * time::get().get_delta());
       break;
   }
 
@@ -265,8 +266,13 @@ void act_move::update(float input) {
   //  - write this to the first point, move to the next point pair
   //  - knock the last point off the end of the vector
 
-  elapsed_ticks %= travel_time;
-  elapsed_ticks++;
+  elapsed_ticks = std::fmod(elapsed_ticks, travel_time);
+  elapsed_ticks += time::get().get_delta();
+
+  //this only applies during EXTREME lag, but if the delta is so bad that the
+  //part somehow ticks its entire movement in one go, clamp it at its max
+  elapsed_ticks = std::min(elapsed_ticks, travel_time);
+
   float t_ratio = (float) elapsed_ticks / (float) travel_time;
 
   std::vector<int> bezier;
