@@ -81,6 +81,7 @@ void engine::play() {
   videogame_titles.push_back("Deep Rock Galactic");
   videogame_titles.push_back("Warframe");
   videogame_titles.push_back("PEAK");
+  videogame_titles.push_back("ENA-4-DreamBBQ");
 
   std::vector<std::string> firefox_titles;
   firefox_titles.push_back("Mozilla Firefox");
