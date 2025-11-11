@@ -13,6 +13,7 @@
 #include "src/screenwatch/screenwatch.h"
 #include "src/events/event.h"
 #include "src/time/time.h"
+#include "src/text/text.h"
 
 //-----------------------------------------------
 
@@ -24,6 +25,9 @@ void engine::play() {
 
   //test time
   time::get();
+
+  //test text
+  text t("test1", "test2");
 
   SDL_Event e;
   bool quit = false;
@@ -105,7 +109,7 @@ void engine::play() {
   //dp_torso.pin_to(-800,-2400,NULL);
   
   //default pin
-  dp_torso.pin_to(500, 90, NULL);
+  dp_torso.pin_to(1460, 90, NULL);
   dp_torso.set_scale(720.0/2800.0);
 
   dollpart dp_torso_bb("./resources/control/sona_tuber_draw_head_base_bb.txt", &r);
@@ -308,6 +312,9 @@ void engine::play() {
       /*static int count = 0;
       std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;*/
      }
+
+    t.update();
+    //std::cout << t.get_message() << std::endl;
 
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 

@@ -66,8 +66,10 @@ private:
   int width;
   int height;
 
+  //texture of image
+  SDL_Texture *t;
   //vector of textures to hold each animation's frame
-  std::vector<SDL_Texture *> t_vec;
+  //std::vector<SDL_Texture *> t_vec;
 
   //pointer to the renderer used for drawing
   //TODO: look VERY closely at this and decide whether or not it's sane. i

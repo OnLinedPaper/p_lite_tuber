@@ -23,6 +23,8 @@ public:
     return instance;
   }
 
+  //return global ticks per second
+  int get_TPS() const { return TPS; }
   //returns elapsed logical ticks since start
   int get_tick() const { return total_ticks; } 
   //returns delta of last logical tick

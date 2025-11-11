@@ -4,6 +4,7 @@
 #include <SDL3/SDL_render.h>
 #include <iostream>
 #include <fstream>
+#include "src/time/time.h"
 
 image::image(const std::string c_file, render *r) : 
     control_file_path(c_file)
@@ -12,6 +13,7 @@ image::image(const std::string c_file, render *r) :
   , fps(-1) 
   , width(-1)
   , height(-1)
+  , t(NULL)
   , r(r)
 { 
   //if this failbit is set, default to a "missing texture"
@@ -52,7 +54,8 @@ image::image(const std::string c_file, render *r) :
   //TODO: add support for multi-frame animations, work out how. for now, just
   //assume single-frame images. odds are it'll be something like a filename
   //list, or perhaps just a count of frames with "00000" "00001" etc after
-  t_vec.push_back(IMG_LoadTexture(r->get_r(), image_file_path.c_str()));
+  t = IMG_LoadTexture(r->get_r(), image_file_path.c_str());
+  //t_vec.push_back(IMG_LoadTexture(r->get_r(), image_file_path.c_str()));
   
   //TODO: remove this later after i'm through with it
 /*
@@ -118,9 +121,10 @@ image::image(const std::string c_file, render *r) :
 }
 
 image::~image() { 
-  for(SDL_Texture *t : t_vec) {
-    SDL_DestroyTexture(t);
-  }
+  /*for(SDL_Texture *tx : t_vec) {
+    SDL_DestroyTexture(tx);
+  }*/
+  SDL_DestroyTexture(t);
 }
 
 void image::draw(int x, int y, float scale) const { 
@@ -140,13 +144,13 @@ void image::draw(int x, int y, float scale) const {
       y + height * scale < 0
   ) { return; }
 
+  //what part of the window to render to
   SDL_FRect dest_r;
   dest_r.x = x;
   dest_r.y = y;
   dest_r.w = width * scale;
   dest_r.h = height * scale;
 
-  //TODO: multi-frame stuff here.
   //for multi-frame sprites, the entire sheet is loaded into a single 
   //horizontal texture. calculate which portion to render based off of the
   //frames and framerate.
@@ -155,15 +159,29 @@ void image::draw(int x, int y, float scale) const {
   //to make them update at consistent fps except with an outside frame of
   //reference.
 
+  //what part of the texture to render from
+  //note: source rect refers to raw texture file, and does NOT need to be
+  //scaled!
+  SDL_FRect src_r;
+  src_r.x = 0;
+  src_r.y = 0;
+  src_r.w = width;
+  src_r.h = height;
+
+  //calculate how many ticks must pass before the frame changes - note that
+  //this (obviously) cannot update frames more than once per update. no i'm
+  //not going to "skip" frames.
+  int tpu = std::max(fps / time::get().get_TPS(), 1);
+  //now calculate which frame to render: divide elapsed ticks by how many 
+  //ticks must pass before an update, and then clamp that to the total number
+  //of frames in an image. 
+  int frame_to_render = (time::get().get_tick() / tpu) % frames;
+  //finally, displace the rendering rectangle to match the frame in question.
+  src_r.x = width * frame_to_render;
+
   //TODO: pivot here, later.
 
-  int frame_to_render = 0;
-  //TODO: frame stuff here, sooner rather than later.
-  SDL_Texture *t = t_vec[frame_to_render];
-  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
-  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_MOD);
-  //SDL_SetTextureBlendMode(t, SDL_BLENDMODE_ADD);
   SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawBlendMode(r->get_r(), SDL_BLENDMODE_BLEND);
-  SDL_RenderTexture(r->get_r(), t, NULL, &dest_r);
+  SDL_RenderTexture(r->get_r(), t, &src_r, &dest_r);
 }
