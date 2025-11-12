@@ -32,12 +32,22 @@ TODO: cool stuff like message glitching/decay
 
 #include <string>
 #include <iostream>
+#include <map>
+#include "src/renders/render.h"
 
 class text {
 public:
   ~text();
   text() = delete;
-  text(const std::string fi_name, const std::string fo_name);
+  text(
+      const std::string fi_name
+    , const std::string fo_name
+    , int x
+    , int y
+    , int w
+    , int h
+    , render *r
+  );
 
   void update();
   void draw() const;
@@ -58,6 +68,18 @@ private:
 
   int pipe;
   bool pipe_open;
+
+  int tlc_x, tlc_y, box_w, box_h;
+
+
+  //due to the unique nature of the spritesheet and how it's drawn, i am
+  //choosing NOT to use an instance of the image class here. text will host
+  //its own textures. 
+  std::string ss_file_path;
+  int ss_frames, ss_fps, ss_width, ss_height, ltr_width, ltr_height;
+  SDL_Texture *t;
+  render *r;
+  bool ss_loaded;
 };
 
 #endif

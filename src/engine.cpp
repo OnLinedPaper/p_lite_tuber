@@ -26,9 +26,6 @@ void engine::play() {
   //test time
   time::get();
 
-  //test text
-  text t("test1", "test2");
-
   SDL_Event e;
   bool quit = false;
 
@@ -36,9 +33,9 @@ void engine::play() {
   
   //create a debugging image
   image i("./resources/control/wisp_yellow.txt", &r);
-  image torso("./resources/control/sona_tuber_draw_head_base.txt", &r);
-  image penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
-  image bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
+  image torso("./resources/control/sona_v1/sona_tuber_draw_head_base.txt", &r);
+  image penhand("./resources/control/sona_v1/sona_tuber_draw_penhand.txt", &r);
+  image bookhand("./resources/control/sona_v1/sona_tuber_draw_bookhand.txt", &r);
 
 /*
   //ok, try to init an audio now
@@ -102,7 +99,7 @@ void engine::play() {
   float vocal_threshold = 0.004;
 
   //let's see if we can get dolls working
-  dollpart dp_torso("./resources/control/sona_tuber_draw_head_base.txt", &r);
+  dollpart dp_torso("./resources/control/sona_v1/sona_tuber_draw_head_base.txt", &r);
   
   //debugging pins
   //dp_torso.pin_to(-200,-800,NULL);
@@ -112,7 +109,7 @@ void engine::play() {
   dp_torso.pin_to(1460, 90, NULL);
   dp_torso.set_scale(720.0/2800.0);
 
-  dollpart dp_torso_bb("./resources/control/sona_tuber_draw_head_base_bb.txt", &r);
+  dollpart dp_torso_bb("./resources/control/sona_v1/sona_tuber_draw_head_base_bb.txt", &r);
   dp_torso_bb.pin_to(0, 0, &dp_torso);
   
   //how about an action?
@@ -125,34 +122,34 @@ void engine::play() {
   dp_torso.add_action(new act_sinefloat(vocal_threshold, action::UP_CONST, action::AXIS_Y, 20.0, 0.6, act_sinefloat::SFTYPE_SF));
 
 
-  dollpart dp_mouth_closed("./resources/control/sona_tuber_draw_head_mouth_closed.txt", &r);
+  dollpart dp_mouth_closed("./resources/control/sona_v1/sona_tuber_draw_head_mouth_closed.txt", &r);
   dp_mouth_closed.pin_to(362, 1117, &dp_torso);
   dp_mouth_closed.add_action(new act_hide(vocal_threshold, action::UP_CONST));
 
-  dollpart dp_mouth_open("./resources/control/sona_tuber_draw_head_mouth_open.txt", &r);
+  dollpart dp_mouth_open("./resources/control/sona_v1/sona_tuber_draw_head_mouth_open.txt", &r);
   dp_mouth_open.pin_to(353, 1119, &dp_torso);
   dp_mouth_open.add_action(new act_hide(vocal_threshold, action::DN_CONST));
 
 
   float blink_threshold = 0.974;
 
-  dollpart dp_eyes_closed("./resources/control/sona_tuber_draw_head_eyes_closed.txt", &r);
+  dollpart dp_eyes_closed("./resources/control/sona_v1/sona_tuber_draw_head_eyes_closed.txt", &r);
   dp_eyes_closed.pin_to(360, 1004, &dp_torso);
   dp_eyes_closed.add_action(new act_hide(blink_threshold, action::DN_CONST));
 
-  dollpart dp_eyes_open("./resources/control/sona_tuber_draw_head_eyes_open.txt", &r);
+  dollpart dp_eyes_open("./resources/control/sona_v1/sona_tuber_draw_head_eyes_open.txt", &r);
   dp_eyes_open.pin_to(357, 993, &dp_torso);
   dp_eyes_open.add_action(new act_hide(blink_threshold, action::UP_CONST));
 
 
-  dollpart dp_outfit_polo("./resources/control/sona_tuber_draw_outfit_polo.txt", &r);
+  dollpart dp_outfit_polo("./resources/control/sona_v1/sona_tuber_draw_outfit_polo.txt", &r);
   dp_outfit_polo.pin_to(127, 1635, &dp_torso);
 
-  dollpart dp_outfit_roseglasses("./resources/control/sona_tuber_draw_outfit_roseglasses.txt", &r);
+  dollpart dp_outfit_roseglasses("./resources/control/sona_v1/sona_tuber_draw_outfit_roseglasses.txt", &r);
   dp_outfit_roseglasses.pin_to(369, 1160, &dp_torso);
 
 
-  dollpart dp_penhand("./resources/control/sona_tuber_draw_penhand.txt", &r);
+  dollpart dp_penhand("./resources/control/sona_v1/sona_tuber_draw_penhand.txt", &r);
   dp_penhand.pin_to(295, 1795, &dp_torso);
 
   //scribble randomly
@@ -164,7 +161,7 @@ void engine::play() {
   dp_penhand.add_action(new act_move(action::AXIS_Y, 0, 2400, {-300, 200, 2100}, 24, act_move::MVTYPE_ST, 0.9, action::DN_CONST));
 
 
-  dollpart dp_bookhand("./resources/control/sona_tuber_draw_bookhand.txt", &r);
+  dollpart dp_bookhand("./resources/control/sona_v1/sona_tuber_draw_bookhand.txt", &r);
   dp_bookhand.pin_to(-95, 1835, &dp_torso);
 
   //follow the pen at 1/10 speed
@@ -175,7 +172,7 @@ void engine::play() {
   dp_bookhand.add_action(new act_move(action::AXIS_Y, 2400, 0, {2100, 200, -300}, 16, act_move::MVTYPE_ST, 1.0, action::UP_CONST));
   dp_bookhand.add_action(new act_move(action::AXIS_Y, 0, 2400, {-300, 200, 2100}, 16, act_move::MVTYPE_ST, 0.9, action::DN_CONST));
 
-  dollpart dp_phonehand("./resources/control/sona_tuber_draw_phonehand.txt", &r);
+  dollpart dp_phonehand("./resources/control/sona_v1/sona_tuber_draw_phonehand.txt", &r);
   dp_phonehand.pin_to(-95, 1635, &dp_torso);
   //dp_phonehand.add_action(new act_hide(1.0, action::DN_CONST));
   
@@ -189,7 +186,7 @@ void engine::play() {
   dp_phonehand.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, 30.0, 0.016, act_sinefloat::SFTYPE_SF));
 
 
-  dollpart dp_phone_base("./resources/control/sona_tuber_draw_phone_base.txt", &r);
+  dollpart dp_phone_base("./resources/control/sona_v1/sona_tuber_draw_phone_base.txt", &r);
   dp_phone_base.pin_to(-1000, -850, &dp_phonehand);
   dp_phone_base.add_action(new act_hide(1.0, action::DN_CONST));
   dp_phone_base.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, -15.0, 0.026, act_sinefloat::SFTYPE_SF));
@@ -199,21 +196,21 @@ void engine::play() {
   //dp_phone_base.add_action(new act_move(action::AXIS_X, 0, 0, {-800, 800}, 24, 1, action::DN_CONST));
 
 
-  dollpart dp_phone_bubble_discord("./resources/control/sona_tuber_draw_phone_bubble_discord.txt", &r);
+  dollpart dp_phone_bubble_discord("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_discord.txt", &r);
   dp_phone_bubble_discord.pin_to(116, 84, &dp_phone_base);
   dp_phone_bubble_discord.add_action(new act_hide(1.0, action::DN_CONST));
 
-  dollpart dp_phone_bubble_base("./resources/control/sona_tuber_draw_phone_bubble_base.txt", &r);
+  dollpart dp_phone_bubble_base("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_base.txt", &r);
   dp_phone_bubble_base.pin_to(116, 84, &dp_phone_base);
   dp_phone_bubble_base.add_action(new act_hide(1.0, action::DN_CONST));
 
-  dollpart dp_phone_bubble_firefox("./resources/control/sona_tuber_draw_phone_bubble_firefox.txt", &r);
+  dollpart dp_phone_bubble_firefox("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_firefox.txt", &r);
   dp_phone_bubble_firefox.pin_to(116, 84, &dp_phone_base);
   dp_phone_bubble_firefox.add_action(new act_hide(1.0, action::DN_CONST));
 
 
 
-  dollpart dp_xboxhand("./resources/control/sona_tuber_xbox.txt", &r);
+  dollpart dp_xboxhand("./resources/control/sona_v1/sona_tuber_xbox.txt", &r);
   dp_xboxhand.pin_to(-200, 1800, &dp_torso);
 
   //float around randomly
@@ -227,6 +224,10 @@ void engine::play() {
 
   //now let's try to get the screenwatcher running
   screenwatch sw;
+
+  //and now, try to get text working
+  text font1("test1", "font1", 650, 527, 600, 150, &r);
+
  
   if(false) {
     std::cout << "\ndebugging finished - returning" << std::endl;
@@ -284,6 +285,8 @@ void engine::play() {
 
     event_v1::get().update();
 
+    font1.update();
+
     dp_torso.draw();
     //dp_torso_bb.draw();
     dp_eyes_closed.draw();
@@ -301,6 +304,8 @@ void engine::play() {
     dp_phone_base.draw();
     dp_xboxhand.draw();
 
+    font1.draw();
+
     //show the focused window (it works!)
     if(false) {
       std::string sw_out = "";
@@ -313,7 +318,6 @@ void engine::play() {
       std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;*/
      }
 
-    t.update();
     //std::cout << t.get_message() << std::endl;
 
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -

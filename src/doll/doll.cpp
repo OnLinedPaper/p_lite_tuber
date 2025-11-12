@@ -1,5 +1,5 @@
 #include "src/doll/doll.h"
-  #include <iostream>
+#include <iostream>
 #include <cmath>
 
 dollpart::dollpart(std::string image_path, render *r) :

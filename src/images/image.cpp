@@ -51,79 +51,10 @@ image::image(const std::string c_file, render *r) :
   ) { fail = true; }
 
   //SDL3: past this point, switching out old method with new one. 
-  //TODO: add support for multi-frame animations, work out how. for now, just
-  //assume single-frame images. odds are it'll be something like a filename
-  //list, or perhaps just a count of frames with "00000" "00001" etc after
   t = IMG_LoadTexture(r->get_r(), image_file_path.c_str());
-  //t_vec.push_back(IMG_LoadTexture(r->get_r(), image_file_path.c_str()));
-  
-  //TODO: remove this later after i'm through with it
-/*
-  //get the image
-  SDL_Surface *raw_surf = IMG_Load(image_file_path.c_str());
-  if(raw_surf == NULL) { fail = true; }
-
-  if(fail) {
-    //something failed to load. warn the user and stick a default texture in here.
-    //TODO: default texture, later. just warn for now and continue.
-    //TODO: move this down lower. wait until all image ops have been attempted
-    //before conclusively deciding pass or fail.
-    std::cerr << "image failed to load!" << std::endl;
-  }
-  else {
-    //load the image here - near-verbatim from qdbp
-    
-    //first, splice the image up into multiple frames
-    SDL_Rect clip;
-    clip.x = 0;
-    clip.y = 0;
-    clip.w = width;
-    clip.h = height;
-    
-    for(int i=0; i<frames; i++) {
-      //make a surface to copy the frame onto
-      SDL_Surface *surf = SDL_CreateSurface(
-          width
-        , height
-        , raw_surf->format
-      );
-
-      //offset for the frame we're grabbing
-      clip.x = width * i;
-      //copy the surface
-      SDL_BlitSurface(raw_surf, &clip, surf, NULL);
-
-      //now, save it to a texture and stick it in the vector
-      SDL_Texture *t;
-      if(surf == NULL) {
-        //TODO: throw an error and deal with it
-      }
-      else {
-        t = SDL_CreateTextureFromSurface(r->get_r(), surf);
-        if(t == NULL) {
-          //TODO: throw an error and deal with it
-        }
-        //save the texture
-        t_vec.push_back(t);
-      }
-      //free the surface
-      SDL_DestroySurface(surf);
-    }
-    //free the surface
-    SDL_DestroySurface(raw_surf);
-
-    //TODO: fix or remove
-    //uh... just... try overwriting the first texture in the vec
-    SDL_DestroyTexture(t_vec.at(0));
-    t_vec.at(0) = IMG_LoadTexture(r->get_r(), image_file_path.c_str());
-  }
-  */
 }
 
 image::~image() { 
-  /*for(SDL_Texture *tx : t_vec) {
-    SDL_DestroyTexture(tx);
-  }*/
   SDL_DestroyTexture(t);
 }
 
@@ -168,18 +99,26 @@ void image::draw(int x, int y, float scale) const {
   src_r.w = width;
   src_r.h = height;
 
-  //calculate how many ticks must pass before the frame changes - note that
-  //this (obviously) cannot update frames more than once per update. no i'm
-  //not going to "skip" frames.
-  int tpu = std::max(fps / time::get().get_TPS(), 1);
-  //now calculate which frame to render: divide elapsed ticks by how many 
-  //ticks must pass before an update, and then clamp that to the total number
-  //of frames in an image. 
-  int frame_to_render = (time::get().get_tick() / tpu) % frames;
-  //finally, displace the rendering rectangle to match the frame in question.
-  src_r.x = width * frame_to_render;
+  if(fps > 0) {
+    //calculate how many ticks must pass before the frame changes - note that
+    //this (obviously) cannot update frames more than once per update. no i'm
+    //not going to "skip" frames.
+    int tpu = std::max(time::get().get_TPS() / fps, 1);
+    //now calculate which frame to render: divide elapsed ticks by how many 
+    //ticks must pass before an update, and then clamp that to the total number
+    //of frames in an image. 
+    int frame_to_render = (time::get().get_tick() / tpu) % frames;
+    //finally, displace the rendering rectangle to match the frame in question.
+    src_r.x = width * frame_to_render;
+  }
 
   //TODO: pivot here, later.
+
+  if(false) {
+    //draw rect around every image
+    SDL_SetRenderDrawColor(r->get_r(), 128,128,128,128);
+    SDL_RenderRect(r->get_r(), &dest_r);
+  }
 
   SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawBlendMode(r->get_r(), SDL_BLENDMODE_BLEND);
