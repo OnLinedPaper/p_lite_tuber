@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <fstream>
 #include "src/time/time.h"
+#include <cstdlib>
 
 text::text(
     const std::string fi_name
@@ -20,6 +21,7 @@ text::text(
   , font_path_base("./resources/control/")
   , font_path(font_path_base + fo_name + ".txt")
   , message("")
+  , printme("")
   , pipe(-1)
   , pipe_open(false)
   , tlc_x(x)
@@ -123,6 +125,77 @@ void text::update() {
     //"clear" the buffer
     buf[0] = '\0';
   }
+
+
+  //printme = message;
+  if(printme == message) { return; }
+
+  scramble();
+}
+
+void text::scramble() {
+  //text scramble effect
+  const int scc = 26; //scramble char count
+  char scramble_chars[scc] = { '!', '#', '$', '%', '&', '*', '+', '-', '/', '\\', '<', '=', '>', '?', '[', ']', '_', '_', '_', '_', '_', '_', '_', '_', '{', '}', };
+  int scramble_intensity = 10;
+  int keep_intensity = 7;
+
+  long unsigned int i=0;    
+  do {
+//  for(long unsigned int i=0; i<printme.size(); i++) {
+    /*compare each letter of printme to each letter of message:
+    - if they match, do nothing
+    - if they do not match, either
+      - fix: change the character to its actual value (0)
+      - keep: do not change the character (scramble_intensity - 1)
+      - scramble: change the character to a scrambled one (any other value)
+    - if printme is shorter than message, add a new scrambled character on "fix"
+    - if printme is longer than message, delete the last character on "fix"*/
+
+
+    const int FIX = 0;
+    const int KEEP = 1;
+    const int SCRAMBLE = 2;
+    int action = -1;
+
+    //my god, using std::rand()?! the code is not cryptographically secure!!
+    int roll = std::rand() % scramble_intensity; 
+    action = SCRAMBLE;
+    if(roll > scramble_intensity - keep_intensity) { action = KEEP; }
+    if(roll == 0) { action = FIX; }
+
+
+    //checks for max string size
+    if(message.size() > 0 && printme.size() > message.size() && i >= message.size()) {
+      if(action == FIX) {
+        //printme is longer than message, delete one character and stop
+        int chars_to_remove = std::max((std::rand() % (printme.size() - message.size()))/3, (size_t)1);
+        printme.erase(i, chars_to_remove);
+        continue;
+      }
+    }
+    else if (message.size() > 0 && printme.size() < message.size() && i+1 >= printme.size()) {
+      if(action == FIX || action == SCRAMBLE) {
+        //printme is shorter than message, add one character and stop
+        int chars_to_add = std::max(std::rand() % (message.size() - printme.size())/3, (size_t)1);
+        for(int j = 0; j < chars_to_add; j++) {
+          printme.append(" ");
+        }
+        continue;
+      }
+    }
+
+    if(message.size() != printme.size() && action == FIX) { action = KEEP; }
+
+    //checks for normal characters in a string
+    if(printme[i] == message[i]) { i++; continue; }
+    if(action == FIX) { printme[i] = message[i]; i++; continue; }
+    if(action == KEEP) { i++; continue; }
+    if(action == SCRAMBLE) { printme[i] = scramble_chars[std::rand() % scc]; }
+
+    i++;
+  } while(i < printme.size());
+
 }
 
 /*
@@ -139,16 +212,50 @@ TODO: tons of stuff. wordbreaks, scrolling text, you name it.
 */
 void text::draw() const {
   float scale = 0.15;
-  int c_x = 0; //horizontal displacement per letter
-  int c_y = 0; //vertical displacement per newline
-
   float spacing_horiz = 0.8;
   float spacing_verti = 0.8;
 
-  for(char c : message) {
+  int c_x = 0; //horizontal displacement per letter
+  int c_y = 0; //vertical displacement per newline
+  int total_printed = -1;
+  int since_newline = -1;
+  size_t chars_per_box = box_w / (ltr_width * scale * spacing_horiz);
+  size_t wordlen = 0;
+
+  for(char c : printme) {
+    total_printed++;
+    since_newline++;
     //first, some checks to see if it's a special char
-    if(c == ' ') { c_x++; continue; }
-    if(c == '\n') { c_x = 0; c_y++; continue; }
+    if(c == ' ') { wordlen = 0; c_x++; continue; }
+    if(c == '\n') { c_x = 0; c_y++; since_newline = 0; continue; }
+    if((int)c < 32 || (int)c > 126) { c = ' '; }
+
+    //(re)calculate length of next word
+    if(wordlen == 0)
+    {
+      wordlen = printme.find(' ', total_printed);
+      if(wordlen == printme.npos) { wordlen = printme.size() - total_printed; }
+      else { wordlen = wordlen - total_printed; }
+    }
+    //calculate the position the end of the word will land at
+    size_t wordend = printme.find(' ', total_printed);
+    if(wordend == printme.npos) { wordend = printme.size() - 1; }
+    else { wordend--; }
+
+    //if it WOULD go past the end, start a new line, unless it's longer than
+    //an entire line
+    if(
+          (since_newline + (wordend - total_printed) >= chars_per_box
+      &&  wordend - total_printed < chars_per_box
+      && wordlen < chars_per_box)
+      ||  (since_newline == (int)chars_per_box && wordlen > chars_per_box)
+    ) {
+      c_x = 0;
+      c_y++;
+      since_newline = 0;
+    } 
+
+    //TODO: bottom of the box, at some point...?
 
     //what part of window to render to
     SDL_FRect dest_r;

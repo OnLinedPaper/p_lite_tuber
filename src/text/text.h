@@ -50,6 +50,7 @@ public:
   );
 
   void update();
+  void scramble();
   void draw() const;
   std::string get_message() const { return message; }
 private:
@@ -65,6 +66,8 @@ private:
   char buf[buf_size + 1] = { 0 };
   //actual message
   std::string message;
+  //message to display (may be different)
+  std::string printme;
 
   int pipe;
   bool pipe_open;

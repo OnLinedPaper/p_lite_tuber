@@ -226,7 +226,7 @@ void engine::play() {
   screenwatch sw;
 
   //and now, try to get text working
-  text font1("test1", "font1", 650, 527, 600, 150, &r);
+  text font1("test1", "font1", 650, 516, 600, 150, &r);
 
  
   if(false) {
