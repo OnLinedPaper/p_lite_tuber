@@ -137,8 +137,9 @@ void text::scramble() {
   //text scramble effect
   const int scc = 26; //scramble char count
   char scramble_chars[scc] = { '!', '#', '$', '%', '&', '*', '+', '-', '/', '\\', '<', '=', '>', '?', '[', ']', '_', '_', '_', '_', '_', '_', '_', '_', '{', '}', };
-  int scramble_intensity = 10;
-  int keep_intensity = 7;
+  int scramble_intensity = 10; //how likely it is to not fix a letter
+  int keep_intensity = 7; //how likely it is to not change scrambled char
+  int growshrink_slow = 3; //how slow to make messages grow/shrink
 
   long unsigned int i=0;    
   do {
@@ -149,8 +150,9 @@ void text::scramble() {
       - fix: change the character to its actual value (0)
       - keep: do not change the character (scramble_intensity - 1)
       - scramble: change the character to a scrambled one (any other value)
-    - if printme is shorter than message, add a new scrambled character on "fix"
-    - if printme is longer than message, delete the last character on "fix"*/
+    - if printme is shorter than message, add some new scrambled characters on 
+      "fix" or "scramble"
+    - if printme is longer than message, delete some characters on "fix"*/
 
 
     const int FIX = 0;
@@ -166,18 +168,32 @@ void text::scramble() {
 
 
     //checks for max string size
-    if(message.size() > 0 && printme.size() > message.size() && i >= message.size()) {
+    if(
+          message.size() > 0 
+      &&  printme.size() > message.size() 
+      &&  i >= message.size()
+    ) {
       if(action == FIX) {
-        //printme is longer than message, delete one character and stop
-        int chars_to_remove = std::max((std::rand() % (printme.size() - message.size()))/3, (size_t)1);
+        //printme is longer than message, delete some characters and stop
+        int chars_to_remove = std::max(
+            (std::rand() % (printme.size() - message.size()))/growshrink_slow
+          , (size_t)1
+        );
         printme.erase(i, chars_to_remove);
         continue;
       }
     }
-    else if (message.size() > 0 && printme.size() < message.size() && i+1 >= printme.size()) {
+    else if (
+          message.size() > 0 
+      &&  printme.size() < message.size() 
+      &&  i+1 >= printme.size()
+    ) {
       if(action == FIX || action == SCRAMBLE) {
-        //printme is shorter than message, add one character and stop
-        int chars_to_add = std::max(std::rand() % (message.size() - printme.size())/3, (size_t)1);
+        //printme is shorter than message, add some characters and stop
+        int chars_to_add = std::max(
+            std::rand() % (message.size() - printme.size())/growshrink_slow
+          , (size_t)1
+        );
         for(int j = 0; j < chars_to_add; j++) {
           printme.append(" ");
         }
@@ -185,6 +201,8 @@ void text::scramble() {
       }
     }
 
+    //don't start filling in correct characters until message is the
+    //correct length
     if(message.size() != printme.size() && action == FIX) { action = KEEP; }
 
     //checks for normal characters in a string
@@ -193,6 +211,7 @@ void text::scramble() {
     if(action == KEEP) { i++; continue; }
     if(action == SCRAMBLE) { printme[i] = scramble_chars[std::rand() % scc]; }
 
+    //go to next letter
     i++;
   } while(i < printme.size());
 
@@ -242,12 +261,12 @@ void text::draw() const {
     if(wordend == printme.npos) { wordend = printme.size() - 1; }
     else { wordend--; }
 
-    //if it WOULD go past the end, start a new line, unless it's longer than
-    //an entire line
     if(
+          /*if a word WOULD go past the box, move it to a new line...*/
           (since_newline + (wordend - total_printed) >= chars_per_box
       &&  wordend - total_printed < chars_per_box
       && wordlen < chars_per_box)
+          /*...but break up any word that is itself too long for the box*/
       ||  (since_newline == (int)chars_per_box && wordlen > chars_per_box)
     ) {
       c_x = 0;
