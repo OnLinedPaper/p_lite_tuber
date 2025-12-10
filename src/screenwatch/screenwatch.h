@@ -16,18 +16,15 @@ public:
   screenwatch();
   ~screenwatch();
 
-  //checks which window is focused, determines its title, and repeats this
-  //backwards until reaching the root window.
-  //this is NOT expecting a pointer, it wants a reference.
-  void get_focused_screen_title(std::string *);
+  //just calls get_titled_window_data() with the currently focused window
+  void get_focused_screen_data(Window *, std::string *);
 
-  //searches the tree for a window whose title includes the given string,
-  //and then replaces the string with that window's complete title.
-  //this is NOT expecting a pointer, it wants a reference.
-  //TODO: delete? prone to causing double free errors when using
-  //XQueryTree and XFree (see zscraps/x11_test3.cpp)
-  void get_screen_title_from_partial_title(std::string *);
-
+  //using the given window, walks backwards up the x tree until it finds a 
+  //titled window (or the root).
+  //this is NOT expecting a pointer, it wants a reference, but if it is passed
+  //NULL it's smart enough to not try assigning a value.
+  //however, if it's given a NULL window, it returns immediately.
+  void get_titled_window_data(Window *, std::string *);
 
   //given a vector of strings, check to see if the string appears anywhere in
   //the title of the currently focused window. returns 1 on true, 0 on false.
@@ -46,9 +43,6 @@ public:
   //and 2 if the window is being monitored, but has not yet been found (or was
   //closed and hasn't been reopened yet).
   int check_monitored_screen(std::string *);
-
-  //updates all monitored screens. 
-  void update();
 
 private:
   //given a window, get its title. 

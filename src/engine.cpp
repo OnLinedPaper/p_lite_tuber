@@ -244,6 +244,9 @@ void engine::play() {
   text nowplaying("nowplaying", "font1", 1480, 105, 380, 35, &r, text::SCROLL_X_OVERFLOW);
   nowplaying.write("// no signal // no signal ");
 
+  //set up the nowplaying speech bubble
+  sw.start_monitoring_screen("FreeTube");
+
  
   if(false) {
     std::cout << "\ndebugging finished - returning" << std::endl;
@@ -303,8 +306,6 @@ void engine::play() {
 
     event_v1::get().update();
 
-    sw.update();
-
     speechbubble.update();
     nowplaying.update();
 
@@ -332,7 +333,7 @@ void engine::play() {
     //show the focused window (it works!)
     if(false) {
       std::string sw_out = "";
-      sw.get_focused_screen_title(&sw_out);
+      sw.get_focused_screen_data(NULL, &sw_out);
       if(sw.check_titles(krita_titles) && false) {
         std::cout << "krita!" << std::endl;
       }
@@ -341,10 +342,22 @@ void engine::play() {
       std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;*/
      }
      //complete the window title
-    if(true) {
+    if(false) {
       std::string sw_out = "FreeTube";
-      sw.get_screen_title_from_partial_title(&sw_out);
-      std::cout << sw_out << std::flush;
+      sw.start_monitoring_screen("FreeTube");
+      std::cout << "got " << sw.check_monitored_screen(&sw_out) << ": " << sw_out << std::endl;
+    }
+
+    //update the nowplaying text
+    std::string np_str = "FreeTube";
+    int np_r = sw.check_monitored_screen(&np_str);
+    if(np_r != 0 || np_str.size() < 11) {
+      nowplaying.write("// no signal // no signal ");
+    }
+    else {
+      np_str.erase(np_str.find(" - FreeTube"), 11);
+      if(np_str.size() > 24) { np_str += "  //  "; }
+      nowplaying.write(np_str);
     }
 
     //std::cout << t.get_message() << std::endl;

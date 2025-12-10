@@ -44,17 +44,32 @@ screenwatch::~screenwatch() {
   XCloseDisplay(d);
 }
 
-void screenwatch::get_focused_screen_title(std::string *s) {
+void screenwatch::get_focused_screen_data(Window *w, std::string *s) {
+  Window w_in;
+  int f_return = 0;
+  XGetInputFocus(d, &w_in, &f_return);
+
+  get_titled_window_data(&w_in, s);
+  //check to see if they want to save the data or not
+  if(w != NULL) { *w = w_in; }
+}
+
+void screenwatch::get_titled_window_data(Window *w, std::string *s) {
+  if(w == NULL) {
+    if(s != NULL) {
+      *s = "ALERT: Window passed was NULL.";
+    }
+    return;
+  }
   //dummy variables
   unsigned int child_count = 0;
   //Window *child_windows;
   Window *child_windows;
-  int f_return = 0;
 
   int status = 0;       //indicates whether window was named
-  Window r_w_r;         //holds root window
-  Window p_w_r;         //holds parent window
-  Window f_window;      //holds focused window
+  Window r_w_r = 0;     //holds root window
+  Window p_w_r = 0;     //holds parent window
+  Window f_window = 0;  //holds focused window
 
   //this will hold the window names
   XTextProperty t;
@@ -62,7 +77,8 @@ void screenwatch::get_focused_screen_title(std::string *s) {
   *s = "";
 
   //get the focused window
-  XGetInputFocus(d, &f_window, &f_return);
+  //XGetInputFocus(d, &f_window, &f_return);
+  f_window = *w;
   //one-time init for edge cases where the focused window is immediately closed
   r_w_r = XDefaultRootWindow(d);
 
@@ -80,14 +96,23 @@ void screenwatch::get_focused_screen_title(std::string *s) {
       XmbTextPropertyToTextList(d, &t, &list_return, &count_return);
 
       //log and assemble the returned strings
-      *s = "]" + *s;
-      for(int i=0; i<count_return; i++) {
-        *s = list_return[i] + *s;
+      //*s = "]" + *s;
+      if(s != NULL) {
+        for(int i=0; i<count_return; i++) {
+          *s = list_return[i] + *s;
+        }
+        //*s = " -> [" + *s;
       }
-      *s = " -> [" + *s;
+
+      //also, return the window
+      if(w != NULL) {
+        *w = f_window;
+      }
 
       //free the memory
       XFreeStringList(list_return);
+
+      quit = true;
     }
 
     //root window never seems to be named, so no "else if" needed here
@@ -99,11 +124,13 @@ void screenwatch::get_focused_screen_title(std::string *s) {
       f_window = r_w_r;
     }
     if(f_window == r_w_r) {
-      *s = "[root]" + *s;
+      //*s = "[root]" + *s;
+      if(s != NULL) { *s = ""; }
+      if(w != NULL) { *w = r_w_r; }
       quit = true;
     }
     else {
-      *s = " -> [none]" + *s;
+      //*s = " -> [none]" + *s;
     }
 
     //now, jump up one window to the parent and do it again
@@ -123,60 +150,10 @@ void screenwatch::get_focused_screen_title(std::string *s) {
   }
 }
 
-//search the entire tree for one that matches the name, returning the first 
-//one found. no recursion. not particularly elegant, but it's mostly just so
-//i can get freetube's title and i won't have more than one of those running
-//anyway, so i'm fine with it.
-//TODO: delete later
-void screenwatch::get_screen_title_from_partial_title(std::string *s) {
-  unsigned int child_count = 0;
-  Window *child_windows;
-  int f_return = 0;
-  int status = 0;
-  XTextProperty t;
-
-  Window r_w_r = XDefaultRootWindow(d);
-  Window c_w_r = r_w_r;
-  
-  bool quit=false;
-  while(!quit) {
-    status = XGetTextProperty(d, c_w_r, &t, XA_WM_NAME);
-
-    if(status) {
-      //this window is named! check if it has a value
-      char **list_return = NULL;
-      int count_return = 0;
-
-      //(for future me: this doesn't leak)
-      XmbTextPropertyToTextList(d, &t, &list_return, &count_return);
-
-      std::string s = "";
-      for(int i=0; i<count_return; i++) {
-        s = list_return[i] + s;
-      }
-
-      //free the memory
-      XFreeStringList(list_return);
- 
-      //inspect the string's name
-      //TODO
-    }
-
-    //now, check all children
-    quit=true;
-
-    XFree(t.value);
-    if(child_count != 0) { XFree(child_windows); }
-  }
-
-  s->erase();
-  return;
-}
-
 float screenwatch::check_titles(std::vector<std::string> &titles) {
   //get current window's title
   std::string focused_title = "";
-  this->get_focused_screen_title(&focused_title);
+  this->get_focused_screen_data(NULL, &focused_title);
 
   //check for a match
   for(std::string title : titles) {
@@ -187,27 +164,49 @@ float screenwatch::check_titles(std::vector<std::string> &titles) {
   return 0.0;
 }
 
-void screenwatch::get_window_title(Window *w, std::string *s) const {
-  //given a window, walk backwards up its tree until a titled window (or the
-  //root window) is found. update the variables with the window id and title
+void screenwatch::start_monitoring_screen(const std::string &str) {
+  //don't monitor more than one window with the same name
+  if(monitored_windows.find(str) != monitored_windows.end()) { return; }
 
-
-
-}
-
-void screenwatch::start_monitoring_screen(const std::string &s) {
-
+  //insert as the root window
+  long unsigned int w = XDefaultRootWindow(d);
+  std::string s = str;
+  monitored_windows.insert(std::make_pair(s, w));
 }
 
 int screenwatch::check_monitored_screen(std::string *s) {
-
-}
-
-void screenwatch::update() {
-  std::map<std::string, Window>:: iterator it;
-
-  for(it = monitored_windows.begin(); it != monitored_windows.end(); it++) {
-    
+  //return failure if window is not being monitored
+  if(monitored_windows.find(*s) == monitored_windows.end()) { 
+    *s = "";
+    return 1; 
   }
 
+  Window w = monitored_windows.find(*s)->second;
+
+  //does this window have a title yet?
+  if(w == XDefaultRootWindow(d)) {
+    //no title yet, try to find one
+    std::string str = "IN";
+    get_focused_screen_data(&w, &str);
+
+    //return failure if the monitored window has no title (yet)
+    if(w != XDefaultRootWindow(d) && str.find(*s) != str.npos) {
+      //found a window! upate the map
+      monitored_windows[*s] = w;
+    }
+    else {
+      *s = "";
+      return 2;
+    }
+  }
+
+  get_titled_window_data(&w, s);
+  if(w == XDefaultRootWindow(d)) {
+    monitored_windows[*s] = XDefaultRootWindow(d);
+    *s = "";
+    return 1;
+  }
+
+  return 0;
 }
+
