@@ -3,7 +3,7 @@ DIR := ${CURDIR}
 CFLAGS= -Wall -Wextra -Wpedantic --std=c++17 -I$(DIR)
 OFLAGS= -O3
 DFLAGS= -g -ggdb -O0
-LFLAGS= -lSDL3 -lSDL3_image -lSDL2 -lX11
+LFLAGS= -lSDL3 -lSDL3_image -lX11
 DDIR= debugging
 XDIR= bin
 BDIR= build

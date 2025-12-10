@@ -15,6 +15,7 @@ text::text(
   , int w
   , int h
   , render *r
+  , uint8_t fla
 ) :
     fifo_path_base("./resources/fifo/")
   , fifo_path(fifo_path_base + fi_name)
@@ -28,6 +29,7 @@ text::text(
   , tlc_y(y)
   , box_w(w)
   , box_h(h)
+  , flags(fla)
   , ss_file_path("")
   , ss_frames(-1)
   , ss_fps(-1)
@@ -140,6 +142,7 @@ void text::scramble() {
   int scramble_intensity = 10; //how likely it is to not fix a letter
   int keep_intensity = 7; //how likely it is to not change scrambled char
   int growshrink_slow = 3; //how slow to make messages grow/shrink
+  size_t growshrink_cap = 12; //max chars to add/remove per update cycle
 
   long unsigned int i=0;    
   do {
@@ -175,9 +178,12 @@ void text::scramble() {
     ) {
       if(action == FIX) {
         //printme is longer than message, delete some characters and stop
-        int chars_to_remove = std::max(
-            (std::rand() % (printme.size() - message.size()))/growshrink_slow
-          , (size_t)1
+        int chars_to_remove = std::min(
+            std::max(
+                (std::rand() % (printme.size() - message.size()))/growshrink_slow
+              , (size_t)1
+            )
+          , growshrink_cap
         );
         printme.erase(i, chars_to_remove);
         continue;
@@ -190,9 +196,12 @@ void text::scramble() {
     ) {
       if(action == FIX || action == SCRAMBLE) {
         //printme is shorter than message, add some characters and stop
-        int chars_to_add = std::max(
-            std::rand() % (message.size() - printme.size())/growshrink_slow
-          , (size_t)1
+        int chars_to_add = std::min(
+            std::max(
+                std::rand() % (message.size() - printme.size())/growshrink_slow
+              , (size_t)1
+            )
+          , growshrink_cap
         );
         for(int j = 0; j < chars_to_add; j++) {
           printme.append(" ");
@@ -204,6 +213,9 @@ void text::scramble() {
     //don't start filling in correct characters until message is the
     //correct length
     if(message.size() != printme.size() && action == FIX) { action = KEEP; }
+
+    //immediately fix whitespace to make the scrambling text "bounce" less
+    if(message[i] == ' ' || message[i] == '\n') { printme[i] = message[i]; }
 
     //checks for normal characters in a string
     if(printme[i] == message[i]) { i++; continue; }
@@ -232,7 +244,7 @@ TODO: tons of stuff. wordbreaks, scrolling text, you name it.
 void text::draw() const {
   float scale = 0.15;
   float spacing_horiz = 0.8;
-  float spacing_verti = 0.8;
+  float spacing_verti = 0.78;
 
   int c_x = 0; //horizontal displacement per letter
   int c_y = 0; //vertical displacement per newline
@@ -240,45 +252,82 @@ void text::draw() const {
   int since_newline = -1;
   size_t chars_per_box = box_w / (ltr_width * scale * spacing_horiz);
   size_t wordlen = 0;
+  size_t linelen = 0;
+  int letter_bump = 0;
 
   for(char c : printme) {
     total_printed++;
     since_newline++;
     //first, some checks to see if it's a special char
     if(c == ' ') { wordlen = 0; c_x++; continue; }
-    if(c == '\n') { c_x = 0; c_y++; since_newline = 0; continue; }
+    if(c == '\n') { linelen = 0; c_x = 0; c_y++; since_newline = 0; continue; }
     if((int)c < 32 || (int)c > 126) { c = ' '; }
 
-    //(re)calculate length of next word
-    if(wordlen == 0)
-    {
-      wordlen = printme.find(' ', total_printed);
-      if(wordlen == printme.npos) { wordlen = printme.size() - total_printed; }
-      else { wordlen = wordlen - total_printed; }
-    }
-    //calculate the position the end of the word will land at
-    size_t wordend = printme.find(' ', total_printed);
-    if(wordend == printme.npos) { wordend = printme.size() - 1; }
-    else { wordend--; }
+    //if word wrap is set, calcualte word length in this next segment
+    if(flags & WRAP_X_OVERFLOW) {
+      //(re)calculate length of next word
+      if(wordlen == 0)
+      {
+        wordlen = printme.find(' ', total_printed);
+        if(wordlen == printme.npos) { 
+          wordlen = printme.size() - total_printed; 
+        }
+        else { wordlen = wordlen - total_printed; }
+      }
+      //calculate the position the end of the word will land at
+      size_t wordend = printme.find(' ', total_printed);
+      if(wordend == printme.npos) { wordend = printme.size() - 1; }
+      else { wordend--; }
 
-    if(
-          /*if a word WOULD go past the box, move it to a new line...*/
-          (since_newline + (wordend - total_printed) >= chars_per_box
-      &&  wordend - total_printed < chars_per_box
-      && wordlen < chars_per_box)
-          /*...but break up any word that is itself too long for the box*/
-      ||  (since_newline == (int)chars_per_box && wordlen > chars_per_box)
-    ) {
-      c_x = 0;
-      c_y++;
-      since_newline = 0;
-    } 
+      if(
+            /*if a word WOULD go past the box, move it to a new line...*/
+            (since_newline + (wordend - total_printed) >= chars_per_box
+        &&  wordend - total_printed < chars_per_box
+        && wordlen < chars_per_box)
+            /*...but break up any word that is itself too long for the box*/
+        ||  (since_newline == (int)chars_per_box && wordlen > chars_per_box)
+      ) {
+        c_x = 0;
+        c_y++;
+        since_newline = 0;
+      } 
+    }
+
+    //if overflow scroll is set, calculate whether to render this word or not
+    if(flags & SCROLL_X_OVERFLOW) {
+      //first, calculate total length of this line
+      if(linelen == 0) {
+        linelen = printme.find('\n', total_printed);
+        if(linelen == printme.npos) {
+          linelen = printme.size() - total_printed;
+        }
+        else { linelen = linelen - total_printed; }
+      }
+
+      //next, check if this line would go past the end of the box
+      if(linelen >= chars_per_box) {
+        //ok, it's too big to fit in the box. scroll it based on time.
+
+        //bump one letter off to the left for every elapsed scroll_speed.
+        //then, don't bother printing if the letter would be off the screen.
+        letter_bump = (time::get().get_tick() / scroll_speed) % linelen;
+        if(c_x - letter_bump < 0) {
+          //this would kick the letter off the screen; wrap it around.
+          letter_bump -= linelen;
+        }
+        if (c_x - letter_bump >= (int)chars_per_box) {
+          c_x++;
+          continue;
+        }        
+      }
+      else { letter_bump = 0; }
+    }
 
     //TODO: bottom of the box, at some point...?
 
     //what part of window to render to
     SDL_FRect dest_r;
-    dest_r.x = tlc_x + (c_x * ltr_width * scale * spacing_horiz);
+    dest_r.x = tlc_x + ((c_x - letter_bump) * ltr_width * scale * spacing_horiz);
     dest_r.y = tlc_y + (c_y * ltr_height * scale * spacing_verti);
     dest_r.w = ltr_width * scale;
     dest_r.h = ltr_height * scale;
@@ -301,7 +350,15 @@ void text::draw() const {
 
 
     //dye the letters
-    SDL_SetTextureColorMod(t, 84, 78, 93); //grey
+    if(
+          printme.size() <= message.size() 
+      &&  printme[total_printed] == message[total_printed]
+    ) {
+      SDL_SetTextureColorMod(t, 84, 78, 93); //grey
+    }
+    else {
+      SDL_SetTextureColorMod(t, 120, 120, 170); //lighter grey
+    }
 
     //draw them!
     SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);

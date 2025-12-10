@@ -37,6 +37,21 @@ TODO: cool stuff like message glitching/decay
 
 class text {
 public:
+  /*
+  a variety of flags that the text can use to dictate its behavior.
+  
+  WRAP and SCROLL dictate how the text behaves when it stretches past the x 
+  boundary of the box. 
+  - without any flag specified, the text will just plow right through the 
+    boundary and keep going, potentially all the way off the screen.
+  - WRAP_X_OVERFLOW will cause the text to wrap around to a new line if it
+    reaches the edge of the box.
+  - SCROLL_X_VERFLOW will cause the text to scroll at a fixed speed if it
+    reaches the edge of the box. this speed is hard-coded into scroll_speed.
+  */
+  static const uint8_t   WRAP_X_OVERFLOW   = 1 << 0;
+  static const uint8_t SCROLL_X_OVERFLOW   = 1 << 1;
+
   ~text();
   text() = delete;
   text(
@@ -47,12 +62,14 @@ public:
     , int w
     , int h
     , render *r
+    , uint8_t f = 0
   );
 
   void update();
   void scramble();
   void draw() const;
   std::string get_message() const { return message; }
+  void write(const std::string &m) { message = m; };
 private:
   const std::string fifo_path_base;
   const std::string fifo_path;
@@ -74,6 +91,8 @@ private:
 
   int tlc_x, tlc_y, box_w, box_h;
 
+  uint8_t flags;
+  const int scroll_speed = 8; //scroll one letter every 8 ticks (3 letters/sec)
 
   //due to the unique nature of the spritesheet and how it's drawn, i am
   //choosing NOT to use an instance of the image class here. text will host

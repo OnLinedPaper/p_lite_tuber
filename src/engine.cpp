@@ -87,14 +87,24 @@ void engine::play() {
   videogame_titles.push_back("Warframe");
   videogame_titles.push_back("PEAK");
   videogame_titles.push_back("ENA-4-DreamBBQ");
+  videogame_titles.push_back("FTL: Faster Than Light");
 
   std::vector<std::string> firefox_titles;
   firefox_titles.push_back("Mozilla Firefox");
+
+  std::vector<std::string> typing_titles;
+  typing_titles.push_back("resources/fifo");
+
+  std::vector<std::string> music_titles;
+  music_titles.push_back("FreeTube");
+  music_titles.push_back("VLC");
 
   //catch-all to make the phone appear
   std::vector<std::string> phone_titles;
   phone_titles.insert(phone_titles.end(), discord_titles.begin(), discord_titles.end());
   phone_titles.insert(phone_titles.end(), firefox_titles.begin(), firefox_titles.end());
+  phone_titles.insert(phone_titles.end(),  typing_titles.begin(),  typing_titles.end());
+  phone_titles.insert(phone_titles.end(),  music_titles.begin(),  music_titles.end());
  
   float vocal_threshold = 0.004;
 
@@ -106,7 +116,7 @@ void engine::play() {
   //dp_torso.pin_to(-800,-2400,NULL);
   
   //default pin
-  dp_torso.pin_to(1460, 90, NULL);
+  dp_torso.pin_to(1460, 270, NULL);
   dp_torso.set_scale(720.0/2800.0);
 
   dollpart dp_torso_bb("./resources/control/sona_v1/sona_tuber_draw_head_base_bb.txt", &r);
@@ -208,6 +218,10 @@ void engine::play() {
   dp_phone_bubble_firefox.pin_to(116, 84, &dp_phone_base);
   dp_phone_bubble_firefox.add_action(new act_hide(1.0, action::DN_CONST));
 
+  dollpart dp_phone_bubble_typing("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_typing.txt", &r);
+  dp_phone_bubble_typing.pin_to(116, 84, &dp_phone_base);
+  dp_phone_bubble_typing.add_action(new act_hide(1.0, action::DN_CONST));  
+
 
 
   dollpart dp_xboxhand("./resources/control/sona_v1/sona_tuber_xbox.txt", &r);
@@ -226,7 +240,9 @@ void engine::play() {
   screenwatch sw;
 
   //and now, try to get text working
-  text font1("test1", "font1", 650, 516, 600, 150, &r);
+  text speechbubble("speechbubble", "font1", 650, 686, 600, 150, &r, text::WRAP_X_OVERFLOW);
+  text nowplaying("nowplaying", "font1", 1480, 105, 380, 35, &r, text::SCROLL_X_OVERFLOW);
+  nowplaying.write("// no signal // no signal ");
 
  
   if(false) {
@@ -282,10 +298,15 @@ void engine::play() {
     dp_phone_bubble_base.update(sw.check_titles(phone_titles));
     dp_phone_bubble_discord.update(sw.check_titles(discord_titles));
     dp_phone_bubble_firefox.update(sw.check_titles(firefox_titles));
+    dp_phone_bubble_typing.update(sw.check_titles(typing_titles));
+
 
     event_v1::get().update();
 
-    font1.update();
+    sw.update();
+
+    speechbubble.update();
+    nowplaying.update();
 
     dp_torso.draw();
     //dp_torso_bb.draw();
@@ -301,15 +322,17 @@ void engine::play() {
     dp_phone_bubble_base.draw();
     dp_phone_bubble_firefox.draw();
     dp_phone_bubble_discord.draw();
+    dp_phone_bubble_typing.draw();
     dp_phone_base.draw();
     dp_xboxhand.draw();
 
-    font1.draw();
+    speechbubble.draw();
+    nowplaying.draw();
 
     //show the focused window (it works!)
     if(false) {
       std::string sw_out = "";
-      sw.get_screen_title(&sw_out);
+      sw.get_focused_screen_title(&sw_out);
       if(sw.check_titles(krita_titles) && false) {
         std::cout << "krita!" << std::endl;
       }
@@ -317,6 +340,12 @@ void engine::play() {
       /*static int count = 0;
       std::cout << count++/24 << " " << std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1000) << " " << T_DELAY << std::endl;*/
      }
+     //complete the window title
+    if(true) {
+      std::string sw_out = "FreeTube";
+      sw.get_screen_title_from_partial_title(&sw_out);
+      std::cout << sw_out << std::flush;
+    }
 
     //std::cout << t.get_message() << std::endl;
 

@@ -6,7 +6,7 @@ render::render() :
     w(NULL)
   , r(NULL)
   , w_width(1920)
-  , w_height(720)
+  , w_height(900)
   , c_r(0x0A)
   , c_g(0xAA)
   , c_b(0xFF) 
