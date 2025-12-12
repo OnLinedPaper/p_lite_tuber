@@ -171,6 +171,7 @@ act_move::act_move(
   , axis(a)
   , src(s)
   , dst(d)
+    //TODO: is this still leaking...?
   , c_points(c_p)
   , travel_time(t)
   , mv_type(m)

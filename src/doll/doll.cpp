@@ -17,9 +17,23 @@ dollpart::~dollpart() {
   while(!actions.empty()) {
     switch(actions.front()->get_type()) {
       case action::TYPE_SF:
+      {
         act_sinefloat *a = (act_sinefloat *)actions.front();
         delete a;
         break;
+      }
+      case action::TYPE_HD:
+      {
+        act_hide *a = (act_hide *)actions.front();
+        delete a;
+        break;
+      }
+      case action::TYPE_MV:
+      {
+        act_move *a = (act_move *)actions.front();
+        delete a;
+        break;
+      }
     }
     //delete actions.front();
     actions.pop_front();
