@@ -55,8 +55,7 @@ void audio::update() {
   SDL_AudioSpec spec;
   SDL_GetAudioStreamFormat(stream, &spec, NULL);
 
-  //TODO: get audio to resync... again. fuck.
-  //TODO: figure out why the fuck this works. this stream doesn't appear to
+  //no idea why the fuck this works. this stream doesn't appear to
   //do anything, but when i remove it, the other audio stream breaks and
   //starts slowing down. i'm also 80% sure this is leaking memory, though it's
   //a constant value, not something that'll crash eventually

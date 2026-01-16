@@ -55,11 +55,6 @@ void dollpart::update(float input) {
   //updates the actions as well
 
   //update the actions
-  //TODO: kill the inactive ones. yes, i could recycle them, but i can do that
-  //later if i really have to. honestly, since actions aren't resource-heavy,
-  //the overhead should be negligible anyway.
-  //TODO: also convert this to explicit iterator, or at least find out what
-  //ranged for does under the hood.
   for(action *a : actions) {
     a->update(input);
   }

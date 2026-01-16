@@ -238,8 +238,6 @@ last printable character, tilde, has ascii val 126.
 each letter in the message is converted into its ascii value, looked up, and
 printed. letters are printed starting at the top left corner of the given box,
 and will indent when they reach the end.
-
-TODO: tons of stuff. wordbreaks, scrolling text, you name it.
 */
 void text::draw() const {
   float scale = 0.15;

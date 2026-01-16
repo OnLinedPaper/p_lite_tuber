@@ -10,13 +10,7 @@ render::render() :
   , c_r(0x0A)
   , c_g(0xAA)
   , c_b(0xFF) 
-{
-  //init_w();
-  //init_r();
-
-  //set window size and height
-  //TODO: this, later. init_w() locks it to hardcoded values
-}
+{ }
 
 render::~render() {
   SDL_DestroyWindow(w);
@@ -47,7 +41,7 @@ void render::init_w() {
       "p_lite_pngtuber"
     , w_width
     , w_height
-    , 0 //TODO: is this right?
+    , 0
   );
   if(w == NULL) {
     //throw an error and die

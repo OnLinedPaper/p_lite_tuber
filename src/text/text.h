@@ -27,7 +27,6 @@ rendered as a "missing texture".
 
 the text object checks the FIFO when it is updated, and will continue to 
 display the same message until a new one becomes available.
-TODO: cool stuff like message glitching/decay
 */
 
 #include <string>

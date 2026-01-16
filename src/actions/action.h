@@ -69,7 +69,6 @@ derived actions are what actually manipulate a dollpart. these actions are:
   arbitrarily many additional control points may be included. if no additional
   contol points are provided, the movement uses constant velocity to reach its
   destination.
-  TODO: decide if the below is sane.
   when movement reaches its destination, it can do one of three things: reset
   to the start, reverse direction, or nothing at all (this option makes the 
   action "single use"). note that "going backwards" performs the exact same

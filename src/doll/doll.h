@@ -66,17 +66,10 @@ images that can be moved around.
   parent, and then add the pin of the dollpart.
 - the "scale" is the scale at which the dollpart is drawn. dollparts pinned to
   other dollparts will inherit that part's scale when pinned.
-
-  TODO: "actions"? every dollpart's going to get audio input, and can take 
-        actions based on it. each action has an... action... and a threshold.
-        perhaps these separate actions have separate thresholds or something?
-        actions include deflection (movement) and rendering (toggle
-        visibility). 
-        speaking makes the doll bounce upon a rising-edge threshold crossover.
-        blinking is pseudorandom... maybe based on whether audio is mod-able
-        by a certain value...?
-        speaking toggles the closed and open mouth rendering(s) based on both
-        rising- and falling-edge threshold crossovers
+- the "actions" are a list of... actions... that modify the dollpart. they can
+  make it move, vanish, and probably more stuff later. all of them are based 
+  on whether or not their "threshold" is met - this can be set to monitor
+  anything the user likes. voice is the most common. 
 */
 class dollpart {
 public:
@@ -112,8 +105,8 @@ private:
 
   bool hidden;  //whether to draw this part or not
 
-  //TODO: decide whether or not this is a horrible idea. child dollparts
-  //holding null references could really screw things up...
+  //dollparts holding references to null parents could be a bad idea, so let's
+  //assume for now that dollparts won't be deleted, just hidden.
   const dollpart *parent;
 
   std::list<action *> actions;

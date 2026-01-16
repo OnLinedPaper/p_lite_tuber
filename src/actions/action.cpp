@@ -39,7 +39,6 @@ act_sinefloat::act_sinefloat(
 { }
 
 void act_sinefloat::update(float input) {
-  //TODO: determine if this can be shipped to action::update()
   bool should_update = false;
   switch(trigger_flags) {
     case UP_CONST:
@@ -171,7 +170,6 @@ act_move::act_move(
   , axis(a)
   , src(s)
   , dst(d)
-    //TODO: is this still leaking...?
   , c_points(c_p)
   , travel_time(t)
   , mv_type(m)

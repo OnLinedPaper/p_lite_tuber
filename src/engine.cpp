@@ -14,6 +14,7 @@
 #include "src/events/event.h"
 #include "src/time/time.h"
 #include "src/text/text.h"
+#include "src/extra/rpoints.h"
 
 //-----------------------------------------------
 
@@ -202,9 +203,6 @@ void engine::play() {
   dp_phone_base.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_X, -15.0, 0.026, act_sinefloat::SFTYPE_SF));
   dp_phone_base.add_action(new act_sinefloat(-1, action::UP_CONST, action::AXIS_Y, -15.0, 0.016, act_sinefloat::SFTYPE_SF));
   
-  //TODO: more of this later
-  //dp_phone_base.add_action(new act_move(action::AXIS_X, 0, 0, {-800, 800}, 24, 1, action::DN_CONST));
-
 
   dollpart dp_phone_bubble_discord("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_discord.txt", &r);
   dp_phone_bubble_discord.pin_to(116, 84, &dp_phone_base);
@@ -221,6 +219,10 @@ void engine::play() {
   dollpart dp_phone_bubble_typing("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_typing.txt", &r);
   dp_phone_bubble_typing.pin_to(116, 84, &dp_phone_base);
   dp_phone_bubble_typing.add_action(new act_hide(1.0, action::DN_CONST));  
+
+  dollpart dp_phone_bubble_tube("./resources/control/sona_v1/sona_tuber_draw_phone_bubble_tube.txt", &r);
+  dp_phone_bubble_tube.pin_to(116, 84, &dp_phone_base);
+  dp_phone_bubble_tube.add_action(new act_hide(1.0, action::DN_CONST));  
 
 
 
@@ -302,6 +304,7 @@ void engine::play() {
     dp_phone_bubble_discord.update(sw.check_titles(discord_titles));
     dp_phone_bubble_firefox.update(sw.check_titles(firefox_titles));
     dp_phone_bubble_typing.update(sw.check_titles(typing_titles));
+    dp_phone_bubble_tube.update(sw.check_titles(music_titles));
 
 
     event_v1::get().update();
@@ -324,6 +327,7 @@ void engine::play() {
     dp_phone_bubble_firefox.draw();
     dp_phone_bubble_discord.draw();
     dp_phone_bubble_typing.draw();
+    dp_phone_bubble_tube.draw();
     dp_phone_base.draw();
     dp_xboxhand.draw();
 
@@ -355,13 +359,27 @@ void engine::play() {
       nowplaying.write("// no signal // no signal ");
     }
     else {
+      //erase the " - Freetube" part
       np_str.erase(np_str.find(" - FreeTube"), 11);
-      if(np_str.size() > 24) { np_str += "  //  "; }
+      //pad this out so it scrolls - "24" is currently a hard-coded value
+      //for how many letters the box can hold before scrolling
+      //TODO: add option to scroll?
+      np_str += "  //  ";
+      while(np_str.size() < 24) {
+        np_str += np_str;
+      }
       nowplaying.write(np_str);
     }
 
     //std::cout << t.get_message() << std::endl;
 
+
+    //little test thing for rotating points
+    if(false) {
+      static rpoints d4(500, 200, 70, 1, &r);
+      d4.update();
+      d4.draw();
+    }
     // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
 
 

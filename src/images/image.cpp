@@ -61,9 +61,6 @@ image::~image() {
 void image::draw(int x, int y, float scale) const { 
   //draw the actual image. remember: x/y coordinates refer to the top left 
   //corner of the image.
-  //TODO: same shit as qdbp's r_c_o_all, i have no doubt this'll balloon in size
-  //as time goes on. at least i don't have to deal with viewport calculations
-  //anymore since it's all in one window.
   
   //check to see if it's on the screen; don't draw it if it's not.
   //TODO: adjust check for rotating images later.

@@ -25,7 +25,6 @@ public:
   //  off extreme volume levels
   enum audio_proc { RAW, SQRT, RMS, LOG, RMSLOG };
 
-  //TODO: expand later
   //this time around, i'm foregoing the ability of the user to control anything
   //about the initialization. it gets the default input at a fixed 44100hz and
   //converts it to SDL_AUDIO_F32LE format; all the user controls is the audio
